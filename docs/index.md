@@ -24,6 +24,15 @@ hide:
     <h2>gstack 설명서 및 시작 가이드</h2>
     <p>설치 방법, 작업 흐름, 주요 명령어를 한 번에 훑어볼 수 있게 정리한 문서입니다.</p>
   </a>
+
+  <a class="post-item" href="files/%EC%9D%B4%ED%98%B8%EC%97%B0_%ED%95%98%EB%84%A4%EC%8A%A4%20%EC%97%94%EC%A7%80%EB%8B%88%EC%96%B4%EB%A7%81.pdf">
+    <div class="post-meta">
+      <span class="post-tag">PDF</span>
+      <span class="post-date">2026.04.23</span>
+    </div>
+    <h2>이호연_하네스 엔지니어링</h2>
+    <p>PDF 원문 파일로 저장된 문서입니다. 클릭하면 브라우저에서 바로 열어볼 수 있습니다.</p>
+  </a>
 </div>
 
 ## Collections
