@@ -1,6 +1,7 @@
 site_name: 소소한 지식 저장소
 site_url: https://sooyoung-wind.github.io/knowledge-library/
 site_description: 소소하지만 오래 남는 가이드, 노트, 레퍼런스를 모아두는 지식 저장소.
+copyright: Inspired By Soo.Y
 
 theme:
   name: material
@@ -31,6 +32,9 @@ theme:
 
 extra_css:
   - stylesheets/extra.css
+
+extra:
+  generator: false
 
 nav:
   - Home: index.md
