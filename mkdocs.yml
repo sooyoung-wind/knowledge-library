@@ -1,6 +1,6 @@
-site_name: Knowledge Library
+site_name: 소소한 지식 저장소
 site_url: https://sooyoung-wind.github.io/knowledge-library/
-site_description: A renewable-feeling knowledge library for curated guides, notes, and reference pages.
+site_description: 소소하지만 오래 남는 가이드, 노트, 레퍼런스를 모아두는 지식 저장소.
 
 theme:
   name: material
@@ -41,9 +41,6 @@ markdown_extensions:
   - admonition
   - attr_list
   - md_in_html
-  - pymdownx.emoji:
-      emoji_index: !!python/name:material.extensions.emoji.twemoji
-      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - tables
   - toc:
       permalink: true
