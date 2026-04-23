@@ -1,6 +1,6 @@
 site_name: Knowledge Library
 site_url: https://sooyoung-wind.github.io/knowledge-library/
-site_description: A calm and luxurious archive for curated notes, guides, and reference pages.
+site_description: A renewable-feeling knowledge library for curated guides, notes, and reference pages.
 
 theme:
   name: material
@@ -20,7 +20,7 @@ theme:
         icon: material/weather-sunny
         name: 라이트 모드로 전환
   icon:
-    logo: material/bookshelf
+    logo: material/leaf-circle
   features:
     - navigation.instant
     - navigation.sections
