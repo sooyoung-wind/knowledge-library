@@ -39,7 +39,9 @@ extra:
 nav:
   - Home: index.md
   - Guides:
-      - gstack Guide: html/gstack-guide.html
+      - gstack 설명서 및 시작 가이드: html/gstack-guide.html
+      - 브레인크루 플러그인 구조와 운영 방식: html/braincrew_plugin_learning_note.html
+      - 하네스 엔지니어링 MeetUp 후기: html/Harness Engineering MeetUp_20260422.html
 
 markdown_extensions:
   - admonition
