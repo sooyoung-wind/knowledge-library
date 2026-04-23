@@ -9,6 +9,10 @@
   --archive-muted: #685f55;
   --archive-line: rgba(65, 50, 31, 0.12);
   --archive-shadow: 0 22px 60px rgba(54, 37, 15, 0.10);
+  --archive-font-sans: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo",
+    "Malgun Gothic", "Segoe UI", sans-serif;
+  --archive-font-serif: "Iowan Old Style", "Palatino Linotype",
+    "Noto Serif KR", Georgia, serif;
 }
 
 body {
@@ -17,6 +21,7 @@ body {
     radial-gradient(circle at top right, rgba(143, 90, 42, 0.12), transparent 24%),
     linear-gradient(180deg, #f8f2e8 0%, #eee4d3 100%);
   color: var(--archive-ink);
+  font-family: var(--archive-font-sans);
 }
 
 .md-header {
@@ -38,6 +43,51 @@ body {
 
 .md-content__inner::before {
   display: none;
+}
+
+.md-typeset,
+.md-nav,
+.md-header,
+.md-tabs {
+  font-family: var(--archive-font-sans);
+}
+
+.md-typeset h1,
+.md-typeset h2,
+.md-typeset h3,
+.md-typeset h4,
+.md-typeset .hero-panel h1 {
+  font-family: var(--archive-font-sans);
+  letter-spacing: -0.03em;
+}
+
+.md-typeset h2 {
+  margin-top: 2.4rem;
+  margin-bottom: 0.9rem;
+  font-size: 1.55rem;
+  font-weight: 800;
+}
+
+.md-typeset h3 {
+  font-size: 1.12rem;
+  font-weight: 750;
+}
+
+.md-typeset p,
+.md-typeset li {
+  font-size: 0.98rem;
+  line-height: 1.8;
+  color: var(--archive-ink);
+}
+
+.md-typeset strong {
+  font-weight: 800;
+}
+
+.md-typeset code,
+.md-typeset pre,
+.md-typeset kbd {
+  font-family: "Cascadia Code", "Consolas", monospace;
 }
 
 .hero-panel {
@@ -81,12 +131,14 @@ body {
   font-size: clamp(2.4rem, 5vw, 4.8rem);
   line-height: 1.03;
   letter-spacing: -0.04em;
+  font-weight: 800;
 }
 
 .lead {
   max-width: 46rem;
   color: var(--archive-muted);
   font-size: 1.07rem;
+  line-height: 1.85;
 }
 
 .hero-actions {
@@ -197,12 +249,14 @@ body {
 .principle h3 {
   margin: 0 0 0.55rem;
   color: var(--archive-ink);
+  font-size: 1.12rem;
 }
 
 .archive-card p,
 .principle p {
   margin: 0;
   color: var(--archive-muted);
+  line-height: 1.75;
 }
 
 .archive-link {
