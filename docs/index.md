@@ -16,14 +16,17 @@ hide:
   </div>
   <div class="hero-metrics">
     <div>
+      <span class="metric-icon">:material-book-open-page-variant-outline:</span>
       <strong>Curated</strong>
       <span>정리된 문서만 보관</span>
     </div>
     <div>
+      <span class="metric-icon">:material-text-box-search-outline:</span>
       <strong>Readable</strong>
       <span>웹에서 읽기 좋은 구조</span>
     </div>
     <div>
+      <span class="metric-icon">:material-archive-outline:</span>
       <strong>Evergreen</strong>
       <span>계속 확장 가능한 도서관</span>
     </div>
@@ -38,26 +41,26 @@ hide:
 <div id="collections" class="card-grid">
   <a class="archive-card archive-card-feature" href="html/gstack-guide.html">
     <span class="archive-kicker">Featured Guide</span>
-    <h3>gstack 설명서 및 시작 가이드</h3>
+    <h3><span class="card-icon">:material-rocket-launch-outline:</span>gstack 설명서 및 시작 가이드</h3>
     <p>Garry Tan의 gstack 저장소를 바탕으로 설치, 워크플로, 주요 명령군을 정리한 HTML 가이드입니다.</p>
     <span class="archive-link">문서 열기</span>
   </a>
 
   <div class="archive-card">
     <span class="archive-kicker">AI Tools</span>
-    <h3>AI 도구 컬렉션</h3>
+    <h3><span class="card-icon">:material-robot-outline:</span>AI 도구 컬렉션</h3>
     <p>프롬프트 도구, 에이전트 워크플로, 자동화 툴 사용법을 모아둘 섹션입니다.</p>
   </div>
 
   <div class="archive-card">
     <span class="archive-kicker">Development</span>
-    <h3>개발 노트 아카이브</h3>
+    <h3><span class="card-icon">:material-code-braces:</span>개발 노트 아카이브</h3>
     <p>설계 메모, 배포 절차, 디버깅 기록, 프레임워크 가이드를 정리할 공간입니다.</p>
   </div>
 
   <div class="archive-card">
     <span class="archive-kicker">Research</span>
-    <h3>리서치와 비교 문서</h3>
+    <h3><span class="card-icon">:material-magnify-scan:</span>리서치와 비교 문서</h3>
     <p>서비스 비교, 제품 분석, 시장 조사, 실험 결과 요약을 저장하기 좋습니다.</p>
   </div>
 </div>
@@ -66,15 +69,15 @@ hide:
 
 <div class="principles">
   <div class="principle">
-    <h3>정리된 입구</h3>
+    <h3><span class="card-icon">:material-view-grid-outline:</span>정리된 입구</h3>
     <p>문서가 많아져도 첫 화면에서 중요한 흐름과 대표 컬렉션을 바로 찾을 수 있어야 합니다.</p>
   </div>
   <div class="principle">
-    <h3>긴 수명의 문서</h3>
+    <h3><span class="card-icon">:material-timer-sand:</span>긴 수명의 문서</h3>
     <p>짧은 메모보다 다시 읽을 가치가 있는 설명서와 참고 문서를 우선으로 쌓습니다.</p>
   </div>
   <div class="principle">
-    <h3>단순한 운영</h3>
+    <h3><span class="card-icon">:material-source-branch:</span>단순한 운영</h3>
     <p>문서를 추가하고 GitHub에 push 하는 것만으로 라이브러리가 계속 자라도록 구성합니다.</p>
   </div>
 </div>
