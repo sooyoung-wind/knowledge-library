@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>브레인크루 플러그인 학습 노트</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --panel: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --accent: #2563eb;
+      --accent-soft: #eff6ff;
+      --good: #065f46;
+      --warn: #92400e;
+      --bad: #991b1b;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 20px 80px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #ffffff 0%, #eef4ff 100%);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 40px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    h1 {
+      margin: 16px 0 12px;
+      font-size: clamp(30px, 5vw, 46px);
+      line-height: 1.15;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 900px;
+      font-size: 18px;
+      color: #334155;
+    }
+
+    .meta {
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chip {
+      border: 1px solid #dbeafe;
+      background: #fff;
+      color: #1e3a8a;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .toc {
+      position: sticky;
+      top: 20px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .toc h2 {
+      margin: 0 0 12px;
+      font-size: 16px;
+    }
+
+    .toc a {
+      display: block;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 8px 10px;
+      border-radius: 10px;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    .toc a:hover { background: #f3f4f6; color: var(--text); }
+
+    .content {
+      display: grid;
+      gap: 20px;
+    }
+
+    .section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .section h2 {
+      margin: 0 0 12px;
+      font-size: 28px;
+      line-height: 1.2;
+    }
+
+    .section h3 {
+      margin: 24px 0 10px;
+      font-size: 20px;
+    }
+
+    .lead {
+      color: #475569;
+      margin-bottom: 18px;
+    }
+
+    .grid-2, .grid-3, .grid-4 {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      background: #fff;
+    }
+
+    .card h4 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+
+    .card p, .card li {
+      color: #4b5563;
+      font-size: 15px;
+    }
+
+    .kpi {
+      border-left: 4px solid var(--accent);
+      background: #f8fbff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      font-size: 14px;
+      overflow: hidden;
+      border-radius: 12px;
+    }
+
+    th, td {
+      border: 1px solid var(--line);
+      padding: 12px 14px;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th {
+      background: #f8fafc;
+      font-weight: 700;
+    }
+
+    ul, ol {
+      margin: 8px 0 0 18px;
+      padding: 0;
+    }
+
+    .flow {
+      display: grid;
+      gap: 12px;
+    }
+
+    .step {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #fff 0%, #fbfdff 100%);
+      border-radius: 16px;
+      padding: 18px;
+      position: relative;
+    }
+
+    .step .num {
+      display: inline-flex;
+      width: 30px;
+      height: 30px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      background: var(--accent);
+      color: white;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .callout {
+      border-radius: 16px;
+      padding: 16px 18px;
+      margin-top: 16px;
+    }
+
+    .callout.info { background: #eff6ff; border: 1px solid #bfdbfe; }
+    .callout.warn { background: #fff7ed; border: 1px solid #fed7aa; }
+    .callout.danger { background: #fef2f2; border: 1px solid #fecaca; }
+    .callout.success { background: #ecfdf5; border: 1px solid #a7f3d0; }
+
+    .tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .tag.blue { background: #dbeafe; color: #1d4ed8; }
+    .tag.orange { background: #ffedd5; color: #c2410c; }
+    .tag.red { background: #fee2e2; color: #b91c1c; }
+    .tag.green { background: #dcfce7; color: #15803d; }
+
+    .footer {
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+      margin-top: 16px;
+    }
+
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .toc {
+        position: relative;
+        top: 0;
+      }
+      .grid-2, .grid-3, .grid-4 {
+        grid-template-columns: 1fr;
+      }
+      .hero, .section { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <span class="eyebrow">학습용 노트</span>
+      <h1>브레인크루 플러그인 구조와 운영 방식</h1>
+      <p>
+        발표 이미지에서 추출한 내용을 바탕으로, 브레인크루 플러그인의 핵심 구조를
+        <strong>스킬 레이어</strong>, <strong>워크플로우 레이어</strong>, <strong>서브 에이전트</strong>,
+        <strong>메모리 아키텍처</strong>, <strong>조직 지식 축적 전략</strong> 중심으로 재구성한 학습 노트입니다.
+      </p>
+      <div class="meta">
+        <span class="chip">26개 skill</span>
+        <span class="chip">5개 서브에이전트</span>
+        <span class="chip">9개 훅</span>
+        <span class="chip">4계층 메모리 구조</span>
+      </div>
+    </section>
+
+    <div class="layout">
+      <aside class="toc">
+        <h2>목차</h2>
+        <a href="#overview">1. 전체 개요</a>
+        <a href="#skills">2. 스킬 레이어</a>
+        <a href="#workflow">3. 워크플로우 레이어</a>
+        <a href="#phases">4. 9단계 실행 구조</a>
+        <a href="#agents">5. 서브 에이전트</a>
+        <a href="#memory-flow">6. 메모리 축적 흐름</a>
+        <a href="#memory-arch">7. 메모리 레이크 아키텍처</a>
+        <a href="#adoption">8. 도입이 어려운 이유</a>
+        <a href="#why-matters">9. 그래도 반드시 해야 하는 이유</a>
+        <a href="#summary">10. 한눈에 정리</a>
+      </aside>
+
+      <main class="content">
+        <section class="section" id="overview">
+          <h2>1. 전체 개요</h2>
+          <p class="lead">
+            이 플러그인은 단순한 편의 도구 묶음이 아니라, 팀이 일하는 방식을 구조화하고,
+            반복되는 시행착오를 조직 자산으로 전환하는 실행 시스템에 가깝습니다.
+          </p>
+          <div class="grid-3">
+            <div class="card kpi">
+              <h4>Skill Layer</h4>
+              <p>우리 스택에 맞는 장비를 선택해 작업 맥락에 따라 자동 로드합니다.</p>
+            </div>
+            <div class="card kpi">
+              <h4>Workflow Layer</h4>
+              <p>인터뷰, 계획, 반박, 구현, 검증까지 표준 실행 루프를 제공합니다.</p>
+            </div>
+            <div class="card kpi">
+              <h4>DIKW Memory Layer</h4>
+              <p>데이터 → 정보 → 지식 → 지혜 → 스킬화의 축적 구조를 만듭니다.</p>
+            </div>
+          </div>
+
+          <div class="callout info">
+            <strong>핵심 메시지:</strong> 플러그인의 본질은 “좋은 프롬프트 세트”가 아니라,
+            팀의 작업 방식과 학습 결과를 표준화하고 축적하는 운영 체계입니다.
+          </div>
+        </section>
+
+        <section class="section" id="skills">
+          <h2>2. 스킬 레이어</h2>
+          <p class="lead">
+            기존 하네스에도 다양한 스킬은 존재하지만, 여기서는 우리 팀에 실제로 필요한 것만 추려 패키징합니다.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>스킬</th>
+                <th>자동 로드 조건</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>bc-python-convention</td><td>Python 작업 시</td></tr>
+              <tr><td>bc-frontend</td><td>React / Next.js 작업 시</td></tr>
+              <tr><td>bc-langchain</td><td>LangChain / LangGraph 작업 시</td></tr>
+              <tr><td>bc-cloud-aws</td><td>AWS 작업 시 (22개 서비스)</td></tr>
+              <tr><td>bc-cloud-azure</td><td>Azure 작업 시</td></tr>
+              <tr><td>bc-infra</td><td>인프라 / 백엔드 작업 시</td></tr>
+              <tr><td>bc-langfuse</td><td>Langfuse 작업 시</td></tr>
+              <tr><td>bc-products</td><td>브레인크루 프로덕트 작업 시</td></tr>
+            </tbody>
+          </table>
+
+          <div class="grid-2" style="margin-top:16px;">
+            <div class="card">
+              <h4>왜 선별이 중요한가</h4>
+              <ul>
+                <li>너무 많은 스킬을 동시에 주면 LLM이 어떤 것을 참조해야 할지 혼란스러울 수 있습니다.</li>
+                <li>필수 스킬 위주로 구성해야 작업 정확도와 일관성이 올라갑니다.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h4>스킬 레이어의 역할</h4>
+              <ul>
+                <li>도구를 작업 맥락과 연결합니다.</li>
+                <li>팀 공통 규칙을 기술적 장비 형태로 내재화합니다.</li>
+                <li>개발자별 편차를 줄이고 시작 속도를 높입니다.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="workflow">
+          <h2>3. 워크플로우 레이어</h2>
+          <p class="lead">
+            브레인크루는 작업 종류에 따라 서로 다른 실행 경로를 사용합니다. 모든 일을 같은 절차로 처리하지 않고,
+            문제의 성격에 따라 루프를 모듈화합니다.
+          </p>
+
+          <div class="grid-2">
+            <div class="card">
+              <span class="tag blue">Brainstorming</span>
+              <ol>
+                <li>INTERVIEW</li>
+                <li>RESEARCH</li>
+                <li>PRE-PLAN</li>
+                <li>DEVIL’S ADVOCATE</li>
+                <li>NEXT SESSION</li>
+              </ol>
+            </div>
+            <div class="card">
+              <span class="tag blue">Comparative Implementation</span>
+              <ol>
+                <li>INTERVIEW</li>
+                <li>PRE-PLAN</li>
+                <li>bc-tree-search</li>
+                <li>PROVE</li>
+              </ol>
+            </div>
+            <div class="card">
+              <span class="tag orange">Bug Fix</span>
+              <ol>
+                <li>INTERVIEW Simplified</li>
+                <li>IMPLEMENT</li>
+                <li>PROVE</li>
+              </ol>
+            </div>
+            <div class="card">
+              <span class="tag orange">One-Line Fix</span>
+              <ol>
+                <li>IMPLEMENT</li>
+                <li>PROVE</li>
+              </ol>
+            </div>
+            <div class="card">
+              <span class="tag green">Feature Addition</span>
+              <ol>
+                <li>INTERVIEW</li>
+                <li>PRE-PLAN</li>
+                <li>DEVIL’S ADVOCATE</li>
+                <li>PLAN</li>
+                <li>DOMAIN REVIEW</li>
+                <li>IMPLEMENT</li>
+                <li>PROVE</li>
+              </ol>
+            </div>
+            <div class="card">
+              <span class="tag green">Full Project</span>
+              <p>9개 단계 기반의 전체 프로젝트 실행 흐름을 사용합니다.</p>
+            </div>
+          </div>
+
+          <div class="callout success">
+            <strong>핵심 설계 원칙:</strong> 복잡한 일일수록 계획과 검증 루프를 늘리고,
+            단순한 일일수록 절차를 압축합니다.
+          </div>
+        </section>
+
+        <section class="section" id="phases">
+          <h2>4. 9단계 실행 구조</h2>
+          <p class="lead">
+            발표 자료에서 가장 강조된 부분은 “계획 단계의 중요성”입니다.
+            구현 전에 충분히 묻고, 조사하고, 반박하고, 검증해야 품질이 올라갑니다.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Phase</th>
+                <th>역할</th>
+                <th>스킬 / 에이전트</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>INTERVIEW</td>
+                <td>철저한 인터뷰를 통해 INTERVIEW-RESULT.md 생성</td>
+                <td>bc-clarify</td>
+              </tr>
+              <tr>
+                <td>RESEARCH</td>
+                <td>불확실한 부분 조사 (memory, web, arxiv, notion)</td>
+                <td>bc-arxiv, bc-memory-read</td>
+              </tr>
+              <tr>
+                <td>PRE-PLAN</td>
+                <td>가안 수립, 핵심 로직 검증 제안, 병렬 탐색 후보 정리</td>
+                <td>bc-plan</td>
+              </tr>
+              <tr>
+                <td>DEVIL’S ADVOCATE</td>
+                <td>PRE-PLAN을 최소 3가지 관점에서 반박</td>
+                <td>critic agent</td>
+              </tr>
+              <tr>
+                <td>VALIDATE</td>
+                <td>핵심 로직 사전 검증 (notebook)</td>
+                <td>bc-notebook</td>
+              </tr>
+              <tr>
+                <td>PLAN</td>
+                <td>Master Plan + Sub Plans + 동적 도메인 리뷰</td>
+                <td>bc-plan</td>
+              </tr>
+              <tr>
+                <td>DOMAIN REVIEW</td>
+                <td>도메인별 에이전트 병렬 리뷰 (고정 + 동적)</td>
+                <td>동적 에이전트 spawn</td>
+              </tr>
+              <tr>
+                <td>IMPLEMENT</td>
+                <td>자율 실행, 불확실할 경우 tree-search 제안</td>
+                <td>bc-tree-search</td>
+              </tr>
+              <tr>
+                <td>PROVE</td>
+                <td>독립 평가, INTERVIEW-RESULT 기준 정합성 점검</td>
+                <td>evaluator agent</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout warn">
+            <strong>중요 포인트:</strong> 구현은 뒤쪽 단계입니다. 앞단의 인터뷰, 리서치, 계획, 반박이 부실하면
+            이후 구현 속도가 빨라 보여도 전체 품질은 오히려 떨어집니다.
+          </div>
+        </section>
+
+        <section class="section" id="agents">
+          <h2>5. 서브 에이전트</h2>
+          <p class="lead">
+            도메인 특성상 Full-stack을 커버해야 하므로, 전문 영역에 특화된 에이전트에게 맥락을 분산(Context Offload)합니다.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Agent</th>
+                <th>역할</th>
+                <th>호출 시점</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>critic</td>
+                <td>Devil’s Advocate. PRE-PLAN에 대해 Risk / Omission / Alternative 관점에서 최소 3가지 반박</td>
+                <td>DEVIL’S ADVOCATE Phase</td>
+              </tr>
+              <tr>
+                <td>evaluator</td>
+                <td>계획 대비 누락, 코드 품질, 보안, LangChain 컨벤션, FE 테스트 점검</td>
+                <td>PROVE Phase</td>
+              </tr>
+              <tr>
+                <td>lab-runner</td>
+                <td>RAG / Agent 실험 자율 실행 (문서 분석 → 실험 → 리포트)</td>
+                <td>bc-lab</td>
+              </tr>
+              <tr>
+                <td>docs-generator</td>
+                <td>README, 다이어그램, HTML 프레젠테이션 생성</td>
+                <td>/bc-docs</td>
+              </tr>
+              <tr>
+                <td>ops-monitor</td>
+                <td>Docker 로그, 컨테이너 진단, 헬스체크</td>
+                <td>운영 이슈 시</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="grid-2" style="margin-top:16px;">
+            <div class="card">
+              <h4>왜 서브 에이전트가 필요한가</h4>
+              <ul>
+                <li>한 모델에게 모든 도메인 지식을 동시에 몰아주면 집중력이 분산됩니다.</li>
+                <li>전문 에이전트가 영역별 검토를 맡으면 품질과 깊이가 올라갑니다.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h4>설계상의 의미</h4>
+              <ul>
+                <li>작업을 기능 단위로 쪼개 책임을 분리합니다.</li>
+                <li>검증과 비판을 독립 모듈로 둬서 자기확신 오류를 줄입니다.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="memory-flow">
+          <h2>6. 메모리 축적 흐름</h2>
+          <p class="lead">
+            메모리는 단순 저장소가 아니라 팀의 일상적 작업 결과를 정리하고, 팀 차원의 자산으로 승격시키는 흐름입니다.
+          </p>
+
+          <div class="flow">
+            <div class="step">
+              <div class="num">1</div>
+              <h3>CLAUDE.md 규칙</h3>
+              <p>작업 종료 시 공유할 팁이 있으면 tips repo에 PR을 올리도록 유도합니다.</p>
+            </div>
+            <div class="step">
+              <div class="num">2</div>
+              <h3>개발 세션 종료</h3>
+              <p>팀원 일상 속에서 나온 작은 교훈과 팁을 놓치지 않고 수집합니다.</p>
+            </div>
+            <div class="step">
+              <div class="num">3</div>
+              <h3>tips repo PR</h3>
+              <p>개별 경험을 문서화 가능한 형태로 변환합니다.</p>
+            </div>
+            <div class="step">
+              <div class="num">4</div>
+              <h3>주간 Sync</h3>
+              <p>PR들을 주간 단위로 종합해 중복과 패턴을 찾습니다.</p>
+            </div>
+            <div class="step">
+              <div class="num">5</div>
+              <h3>공유 / 정리</h3>
+              <p>최종적으로 팀 차원의 하네스 자산으로 정리합니다.</p>
+            </div>
+          </div>
+
+          <div class="callout info">
+            <strong>실무 팁:</strong> “매 작업 시작 시 git pull” 같은 운영 규칙은 사소해 보여도,
+            메모리 흐름이 끊기지 않게 만드는 핵심 습관입니다.
+          </div>
+        </section>
+
+        <section class="section" id="memory-arch">
+          <h2>7. 메모리 레이크 아키텍처</h2>
+          <p class="lead">
+            이 구조는 개발 중 발생한 세션 수준의 흔적을 점진적으로 추상화해,
+            최종적으로는 다시 재사용 가능한 스킬로 환원하는 아키텍처입니다.
+          </p>
+
+          <div class="grid-2">
+            <div class="card">
+              <span class="tag blue">단계 1</span>
+              <h4>데이터 (세션 요약)</h4>
+              <p><strong>경로:</strong> memory-lake/data/</p>
+              <p><strong>내용:</strong> Haiku가 매 세션 요약</p>
+              <p><strong>질문:</strong> 5개 축 체크</p>
+            </div>
+            <div class="card">
+              <span class="tag blue">단계 2</span>
+              <h4>정보 (종합 분석)</h4>
+              <p><strong>경로:</strong> memory-lake/information/</p>
+              <p><strong>내용:</strong> 5개 세션 데이터 종합</p>
+              <p><strong>질문:</strong> 교훈 발견?</p>
+            </div>
+            <div class="card">
+              <span class="tag green">단계 3</span>
+              <h4>지식 (사례 추출)</h4>
+              <p><strong>경로:</strong> memory-lake/knowledge/</p>
+              <p><strong>내용:</strong> 문제-시도-해결 케이스</p>
+              <p><strong>질문:</strong> 패턴 반복?</p>
+            </div>
+            <div class="card">
+              <span class="tag green">단계 4</span>
+              <h4>지혜 (패턴화)</h4>
+              <p><strong>경로:</strong> memory-lake/wisdom/</p>
+              <p><strong>내용:</strong> 문제-추론-솔루션 패턴</p>
+              <p><strong>질문:</strong> 지혜 생성?</p>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:16px;">
+            <span class="tag orange">단계 5</span>
+            <h4>기술 진화 (적용 실험)</h4>
+            <p><strong>실행 파일:</strong> memory_to_skill.py</p>
+            <p><strong>결과:</strong> PR 생성 및 스킬 설치</p>
+            <p>즉, 메모리는 저장으로 끝나지 않고 다시 실행 가능한 기술 자산으로 환원됩니다.</p>
+          </div>
+        </section>
+
+        <section class="section" id="adoption">
+          <h2>8. 도입이 어려운 이유</h2>
+          <p class="lead">
+            발표 자료는 플러그인을 배포해도 현업에서 강제 도입하기 어려운 현실적 이유를 분명히 짚습니다.
+          </p>
+
+          <div class="grid-3">
+            <div class="card">
+              <span class="tag red">이유 1</span>
+              <h4>작업 스타일의 차이</h4>
+              <ul>
+                <li>도구, 프롬프트, 워크플로우 선호가 개인마다 다릅니다.</li>
+                <li>좋은 규칙이라도 모두가 같은 방식으로 받아들이지 않습니다.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <span class="tag red">이유 2</span>
+              <h4>맥락과 목적의 차이</h4>
+              <ul>
+                <li>업무 성격, 우선순위, 도메인 지식 수준이 다릅니다.</li>
+                <li>일괄 적용은 오히려 비효율을 만들 수 있습니다.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <span class="tag red">이유 3</span>
+              <h4>변화에 대한 부담</h4>
+              <ul>
+                <li>새 규칙과 도구는 학습 비용을 유발합니다.</li>
+                <li>강제는 저항을 낳고, 낮은 신뢰도와 저조한 사용률로 이어질 수 있습니다.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="callout danger">
+            <strong>시사점:</strong> 플러그인의 성공은 “배포 여부”가 아니라,
+            실제 팀원들이 자기 일에 도움이 된다고 느끼는지에 달려 있습니다.
+          </div>
+        </section>
+
+        <section class="section" id="why-matters">
+          <h2>9. 그래도 반드시 해야 하는 이유</h2>
+          <p class="lead">
+            발표 자료의 가장 중요한 메시지 중 하나는 이것입니다.
+            플러그인 설치의 가치 중 10%는 편의성이고, 90%는 지식 자산 축적입니다.
+          </p>
+
+          <div class="grid-3">
+            <div class="card">
+              <span class="tag orange">쉽게 희석된다</span>
+              <p>프롬프트, 일부 도구 구성은 모델·플랫폼 업데이트로 빠르게 대체될 수 있습니다.</p>
+            </div>
+            <div class="card">
+              <span class="tag orange">일부 희석된다</span>
+              <p>유사한 대안이 생기면 기존 자산의 차별성은 약해질 수 있습니다.</p>
+            </div>
+            <div class="card">
+              <span class="tag green">희석되지 않는다</span>
+              <p>조직이 직접 겪은 사례, 실패, 해결 맥락, 고객 맥락은 시간이 갈수록 독점성이 강화됩니다.</p>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:16px;">
+            <h3>조직의 경험 자산이 중요한 이유</h3>
+            <ul>
+              <li>이것은 외부 모델 업데이트로 대체되지 않습니다.</li>
+              <li>팀이 직접 겪은 문제와 해결 맥락이기 때문에 재현성과 설득력이 높습니다.</li>
+              <li>궁극적으로 조직만의 독점적 경쟁력이 됩니다.</li>
+            </ul>
+          </div>
+
+          <div class="grid-3" style="margin-top:16px;">
+            <div class="card">
+              <h4>Obsidian KB 문화</h4>
+              <p>백링크 기반의 지식 정리 문화는 팀 지식 구조화의 선행 사례로 읽을 수 있습니다.</p>
+            </div>
+            <div class="card">
+              <h4>Karpathy LLM Wiki</h4>
+              <p>Markdown + grep + RAG 식 접근은 가볍고 실용적인 지식 운영 패턴을 보여줍니다.</p>
+            </div>
+            <div class="card">
+              <h4>Manus File System</h4>
+              <p>Context-offloading은 긴 맥락을 외부 구조로 분산해 처리하는 방향성과 닿아 있습니다.</p>
+            </div>
+          </div>
+
+          <div class="callout success">
+            <strong>결론:</strong> 앞으로의 LLM 운영은 단순 프롬프트 엔지니어링보다,
+            백링크·파일 시스템·지식 그래프·메모리 축적을 결합한 “LLM Wiki 패턴”으로 갈 가능성이 높습니다.
+          </div>
+        </section>
+
+        <section class="section" id="summary">
+          <h2>10. 한눈에 정리</h2>
+          <div class="grid-2">
+            <div class="card">
+              <h4>이 플러그인은 무엇인가</h4>
+              <p>스킬 모음이 아니라, 팀의 작업 방식과 검증 루프와 지식 축적 체계를 묶은 운영 프레임워크입니다.</p>
+            </div>
+            <div class="card">
+              <h4>가장 중요한 단계는</h4>
+              <p>계획 단계입니다. 구현 전에 묻고, 조사하고, 반박하고, 검증하는 구조가 핵심입니다.</p>
+            </div>
+            <div class="card">
+              <h4>서브 에이전트의 역할은</h4>
+              <p>전문 영역별 검토를 맡아 컨텍스트를 분산시키고 품질을 높이는 것입니다.</p>
+            </div>
+            <div class="card">
+              <h4>메모리의 최종 목적은</h4>
+              <p>기록이 아니라 스킬화입니다. 즉, 경험을 다시 실행 가능한 시스템으로 환원하는 것입니다.</p>
+            </div>
+            <div class="card">
+              <h4>도입의 현실적 장벽은</h4>
+              <p>개인별 스타일 차이, 업무 맥락 차이, 변화에 대한 부담입니다.</p>
+            </div>
+            <div class="card">
+              <h4>그래도 해야 하는 이유는</h4>
+              <p>결국 조직의 경험 자산은 희석되지 않는 경쟁력이기 때문입니다.</p>
+            </div>
+          </div>
+        </section>
+
+        <p class="footer">정리 기준: 업로드된 발표 이미지에서 판독 가능한 내용을 바탕으로 재구성한 학습용 HTML 노트</p>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
