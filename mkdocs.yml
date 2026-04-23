@@ -1,0 +1,10 @@
+site_name: Knowledge Library
+site_url: https://<github-username>.github.io/knowledge-library/
+theme:
+  name: readthedocs
+
+nav:
+  - Home: index.md
+  - HTML Guides:
+      - gstack Guide: html/gstack-guide.html
+
