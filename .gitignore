@@ -1,0 +1,9 @@
+.venv/
+.python-version
+site/
+__pycache__/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
