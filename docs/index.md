@@ -53,30 +53,3 @@ hide:
   </a>
 </div>
 
-## Collections
-
-<div class="post-list post-list-compact">
-  <div class="post-item">
-    <div class="post-meta">
-      <span class="post-tag">AI Tools</span>
-    </div>
-    <h2>도구와 워크플로</h2>
-    <p>에이전트 도구, 프롬프트 패턴, 자동화 흐름처럼 자주 참고할 내용을 모아둡니다.</p>
-  </div>
-
-  <div class="post-item">
-    <div class="post-meta">
-      <span class="post-tag">Development</span>
-    </div>
-    <h2>개발 노트</h2>
-    <p>설계 메모, 디버깅 기록, 배포 방법처럼 직접 부딪히며 쌓인 기록을 정리합니다.</p>
-  </div>
-
-  <div class="post-item">
-    <div class="post-meta">
-      <span class="post-tag">Research</span>
-    </div>
-    <h2>리서치와 비교</h2>
-    <p>시장 조사, 제품 비교, 사례 정리처럼 생각을 정리할 때 필요한 문서를 담아둡니다.</p>
-  </div>
-</div>
