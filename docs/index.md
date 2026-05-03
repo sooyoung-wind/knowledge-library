@@ -16,6 +16,15 @@ hide:
 ## Latest Entries
 
 <div class="post-list">
+  <a class="post-item" href="html/HPC-MI%20%EC%97%B0%EA%B5%AC%20%EC%A0%9C%EC%95%88%EC%84%9C%20%EC%B4%88%EC%95%88.html">
+    <div class="post-meta">
+      <span class="post-tag">Proposal</span>
+      <span class="post-date">2026.05.03</span>
+    </div>
+    <h2>HPC-MI 연구 제안서 초안</h2>
+    <p>MathJax 수식이 포함된 연구 제안서 초안으로, 배경·가설·방법론·모델 설계를 보고서 형식으로 정리한 문서입니다.</p>
+  </a>
+
   <a class="post-item" href="html/braincrew_plugin_learning_note.html">
     <div class="post-meta">
       <span class="post-tag">Note</span>
