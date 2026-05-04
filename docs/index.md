@@ -16,6 +16,15 @@ hide:
 ## Latest Entries
 
 <div class="post-list">
+  <a class="post-item" href="html/report_wind_mcp_ai_models.html">
+    <div class="post-meta">
+      <span class="post-tag">Research</span>
+      <span class="post-date">2026.05.04</span>
+    </div>
+    <h2>풍력 MCP 장기보정 AI 모델 종합 리서치 보고서</h2>
+    <p>풍력 MCP 장기보정에 적용 가능한 AI 모델과 접근 전략을 종합적으로 정리한 리서치 보고서입니다.</p>
+  </a>
+
   <a class="post-item" href="html/HPC-MI%20%EC%97%B0%EA%B5%AC%20%EC%A0%9C%EC%95%88%EC%84%9C%20%EC%B4%88%EC%95%88.html">
     <div class="post-meta">
       <span class="post-tag">Proposal</span>

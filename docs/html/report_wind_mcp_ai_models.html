@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>풍력 MCP 장기보정 AI 모델 종합 리서치 보고서</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=Noto+Serif+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ═══════════ 색상 팔레트: 따뜻한 서재 / 도서관 ═══════════ */
+  :root {
+    --bg:        #1a1208;   /* 짙은 호두나무 */
+    --surface:   #231809;   /* 낡은 가죽 */
+    --surface2:  #2e2010;   /* 중간 따뜻한 갈색 */
+    --border:    #4e3820;   /* 따뜻한 경계선 */
+    --accent:    #c8963c;   /* 호박빛 금색 */
+    --accent2:   #d4aa52;   /* 밝은 금 */
+    --accent3:   #7aaa68;   /* 세이지 그린 */
+    --accent4:   #cc8840;   /* 구리빛 */
+    --accent5:   #cc5040;   /* 테라코타 */
+    --text:      #ede0c8;   /* 양피지 크림 */
+    --text2:     #c0a880;   /* 중간 양피지 */
+    --text3:     #8a7050;   /* 흐릿한 잉크 */
+    --star:      #c8aa28;   /* 낡은 금 */
+    --warn:      #cc8840;
+    --danger:    #c85040;
+    --ok:        #6aaa58;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 20% 50%, rgba(200,150,60,0.03) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(200,150,60,0.02) 0%, transparent 50%);
+    color: var(--text);
+    font-family: 'EB Garamond', 'Noto Serif KR', Georgia, 'Times New Roman', serif;
+    font-size: 17px;
+    line-height: 1.9;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ══════════════════════════════════════════════
+     표제 페이지 (Hero)
+     책 제목 페이지처럼 — 장식 선과 세리프 타이포
+  ══════════════════════════════════════════════ */
+  .hero {
+    background: linear-gradient(180deg, #0e0a04 0%, #1a1208 60%, #221608 100%);
+    border-bottom: 2px solid var(--border);
+    padding: 80px 24px 72px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(200,150,60,0.08) 0%, transparent 65%),
+      radial-gradient(ellipse at 50% 100%, rgba(200,150,60,0.04) 0%, transparent 50%);
+  }
+  .hero::after {
+    content: '✦ ✦ ✦';
+    display: block;
+    position: absolute;
+    bottom: 20px; left: 0; right: 0;
+    text-align: center;
+    font-size: 10px;
+    letter-spacing: 12px;
+    color: var(--border);
+  }
+
+  .hero-badge {
+    display: inline-block;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    color: var(--text3);
+    padding: 5px 20px;
+    font-size: 11px;
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', 'Noto Serif KR', serif;
+    font-size: clamp(26px, 5vw, 46px);
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--text);
+    max-width: 780px;
+    margin: 0 auto 16px;
+    letter-spacing: -0.5px;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+    background: none;
+    -webkit-text-fill-color: unset;
+  }
+
+  /* 장식 구분선 */
+  .hero-ornament {
+    display: block;
+    margin: 20px auto;
+    width: 200px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    position: relative;
+  }
+  .hero-ornament::before {
+    content: '❧';
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--accent);
+    font-size: 14px;
+    background: #1a1208;
+    padding: 0 8px;
+  }
+
+  .hero-sub {
+    color: var(--text3);
+    font-size: 15px;
+    font-style: italic;
+    margin-top: 8px;
+    letter-spacing: 0.3px;
+  }
+  .hero-meta {
+    margin-top: 28px;
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: var(--text3);
+    font-family: 'EB Garamond', serif;
+    letter-spacing: 0.5px;
+  }
+  .hero-meta span { display: flex; align-items: center; gap: 6px; }
+
+  /* ══════════════════════════════════════════════
+     레이아웃
+  ══════════════════════════════════════════════ */
+  .container { max-width: 1060px; margin: 0 auto; padding: 0 32px; }
+
+  /* ══════════════════════════════════════════════
+     데이터 띠 (Trust Strip)
+  ══════════════════════════════════════════════ */
+  .trust-strip {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 24px;
+  }
+  .trust-grid {
+    max-width: 1060px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 8px;
+  }
+  .trust-item { text-align: center; padding: 8px 0; }
+  .trust-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .trust-label {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 4px;
+    font-style: italic;
+    letter-spacing: 0.3px;
+  }
+
+  /* ══════════════════════════════════════════════
+     목차 (TOC) — 고전 책 목차 스타일
+  ══════════════════════════════════════════════ */
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--accent);
+    padding: 28px 36px;
+    margin: 40px 0;
+    position: relative;
+  }
+  .toc::before {
+    content: '목  차';
+    display: block;
+    font-family: 'Playfair Display', serif;
+    font-size: 11px;
+    letter-spacing: 6px;
+    text-align: center;
+    color: var(--text3);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .toc-title { display: none; }
+  .toc ol { padding-left: 0; counter-reset: toc-counter; list-style: none; }
+  .toc li {
+    counter-increment: toc-counter;
+    margin: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 0;
+  }
+  .toc li::before {
+    content: counter(toc-counter, upper-roman) '.';
+    min-width: 36px;
+    font-family: 'EB Garamond', serif;
+    font-size: 13px;
+    color: var(--accent);
+    flex-shrink: 0;
+    padding-top: 3px;
+  }
+  .toc a {
+    color: var(--text2);
+    text-decoration: none;
+    font-family: 'EB Garamond', serif;
+    font-size: 15px;
+    flex: 1;
+    padding: 3px 0;
+    border-bottom: 1px dotted var(--border);
+    transition: color 0.2s;
+  }
+  .toc a:hover { color: var(--accent); }
+
+  /* ══════════════════════════════════════════════
+     섹션 & 헤딩 — 챕터 스타일
+  ══════════════════════════════════════════════ */
+  section { padding: 56px 0; border-bottom: 1px solid var(--border); position: relative; }
+  section:last-child { border-bottom: none; }
+
+  /* 섹션 레이블 → 챕터 마커 */
+  .section-label {
+    display: block;
+    font-family: 'EB Garamond', serif;
+    font-size: 11px;
+    font-style: italic;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+    opacity: 0.85;
+  }
+  .section-label::before { content: '— '; }
+  .section-label::after  { content: ' —'; }
+
+  h2 {
+    font-family: 'Playfair Display', 'Noto Serif KR', serif;
+    font-size: clamp(22px, 3.5vw, 34px);
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+    line-height: 1.25;
+    letter-spacing: -0.3px;
+  }
+
+  /* h2 아래 장식 줄 */
+  h2 + p, h2 + div { margin-top: 16px; }
+  section > h2::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    margin-top: 10px;
+    margin-bottom: 20px;
+  }
+
+  h3 {
+    font-family: 'EB Garamond', 'Noto Serif KR', serif;
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 36px 0 14px;
+    letter-spacing: 0.2px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  h4 {
+    font-family: 'EB Garamond', serif;
+    font-size: 15px;
+    font-weight: 600;
+    font-style: italic;
+    color: var(--accent3);
+    margin: 24px 0 10px;
+    letter-spacing: 0.3px;
+  }
+
+  p { color: var(--text2); margin-bottom: 14px; font-size: 16px; }
+
+  /* ══════════════════════════════════════════════
+     이그제큐티브 서머리 카드 — 조판 박스 스타일
+  ══════════════════════════════════════════════ */
+  .exec-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 1px;
+    margin-top: 28px;
+    border: 1px solid var(--border);
+    background: var(--border);
+  }
+  .exec-card {
+    background: var(--surface2);
+    border: none;
+    border-left: none;
+    border-radius: 0;
+    padding: 22px 20px;
+    border-left: 3px solid var(--accent);
+  }
+  .exec-card.alt { border-left-color: var(--accent2); }
+  .exec-card.alt2 { border-left-color: var(--accent3); }
+  .exec-card.alt3 { border-left-color: var(--accent4); }
+  .exec-card-icon { font-size: 18px; margin-bottom: 10px; opacity: 0.8; }
+  .exec-card h4 {
+    font-size: 12px;
+    font-weight: 700;
+    font-style: normal;
+    color: var(--text);
+    margin: 0 0 10px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  .exec-card p { font-size: 13px; color: var(--text2); margin: 0; line-height: 1.6; }
+
+  /* ══════════════════════════════════════════════
+     신뢰도 레벨 카드
+  ══════════════════════════════════════════════ */
+  .trust-level {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    margin: 28px 0;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+  .tl-card {
+    background: var(--surface2);
+    border: none;
+    border-radius: 0;
+    padding: 20px 16px;
+    text-align: center;
+  }
+  .tl-stars { font-size: 16px; margin-bottom: 8px; color: var(--star); }
+  .tl-count {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+  }
+  .tl-label { font-size: 11px; color: var(--text3); margin-top: 6px; font-style: italic; }
+
+  /* ══════════════════════════════════════════════
+     타임라인 — 연보 스타일
+  ══════════════════════════════════════════════ */
+  .timeline { position: relative; padding-left: 36px; margin-top: 20px; }
+  .timeline::before {
+    content: '';
+    position: absolute; left: 10px; top: 6px; bottom: 6px;
+    width: 1px; background: var(--border);
+  }
+  .tl-item { position: relative; margin-bottom: 28px; }
+  .tl-dot {
+    position: absolute; left: -30px; top: 6px;
+    width: 10px; height: 10px;
+    background: var(--accent);
+    border: 2px solid var(--bg);
+    transform: rotate(45deg);
+  }
+  .tl-item.g2 .tl-dot { background: var(--accent2); }
+  .tl-item.g3 .tl-dot { background: var(--accent3); }
+  .tl-item.g4 .tl-dot { background: var(--accent4); }
+
+  .tl-period {
+    font-family: 'EB Garamond', serif;
+    font-size: 11px;
+    font-style: italic;
+    color: var(--accent);
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .tl-item.g2 .tl-period { color: var(--accent2); }
+  .tl-item.g3 .tl-period { color: var(--accent3); }
+  .tl-item.g4 .tl-period { color: var(--accent4); }
+
+  .tl-title {
+    font-family: 'EB Garamond', serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .tl-desc { font-size: 14px; color: var(--text2); line-height: 1.7; }
+
+  /* ══════════════════════════════════════════════
+     표 — 클래식 학술 표 스타일
+  ══════════════════════════════════════════════ */
+  .table-wrap { overflow-x: auto; margin: 20px 0; }
+  table { width: 100%; border-collapse: collapse; }
+  thead { border-top: 2px solid var(--accent); border-bottom: 1px solid var(--border); }
+  thead th {
+    font-family: 'EB Garamond', serif;
+    font-size: 12px;
+    font-style: italic;
+    letter-spacing: 0.5px;
+    color: var(--text2);
+    padding: 10px 14px;
+    text-align: left;
+    background: transparent;
+    white-space: nowrap;
+    font-weight: 600;
+  }
+  tbody tr { border-bottom: 1px solid rgba(78,56,32,0.5); transition: background 0.15s; }
+  tbody tr:last-child { border-bottom: 2px solid var(--border); }
+  tbody tr:hover { background: rgba(200,150,60,0.04); }
+  tbody td { padding: 10px 14px; font-size: 14px; color: var(--text2); vertical-align: top; }
+  tbody td:first-child { font-weight: 600; color: var(--text); font-family: 'EB Garamond', serif; }
+
+  /* ══════════════════════════════════════════════
+     알고리즘 카드 — 백과사전 항목 스타일
+  ══════════════════════════════════════════════ */
+  .algo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .algo-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 0;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .algo-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  }
+  .algo-card.traditional::before { background: var(--text3); }
+  .algo-card.ml-classic::before  { background: var(--accent4); }
+  .algo-card.dl-rnn::before      { background: var(--accent); }
+  .algo-card.dl-trans::before    { background: var(--accent2); }
+  .algo-card.dl-gen::before      { background: var(--accent3); }
+
+  .algo-tier {
+    font-family: 'EB Garamond', serif;
+    font-size: 10px;
+    font-style: italic;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .traditional .algo-tier { color: var(--text3); }
+  .ml-classic  .algo-tier { color: var(--accent4); }
+  .dl-rnn      .algo-tier { color: var(--accent); }
+  .dl-trans    .algo-tier { color: var(--accent2); }
+  .dl-gen      .algo-tier { color: var(--accent3); }
+
+  .algo-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+  .algo-perf { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
+  .perf-bar-wrap { flex: 1; background: var(--border); height: 5px; overflow: hidden; }
+  .perf-bar { height: 100%; }
+  .traditional .perf-bar { background: var(--text3); }
+  .ml-classic  .perf-bar { background: var(--accent4); }
+  .dl-rnn      .perf-bar { background: var(--accent); }
+  .dl-trans    .perf-bar { background: var(--accent2); }
+  .dl-gen      .perf-bar { background: var(--accent3); }
+  .perf-score { font-family: 'EB Garamond', serif; font-size: 13px; color: var(--text2); min-width: 26px; text-align: right; }
+  .algo-desc   { font-size: 13px; color: var(--text2); margin-top: 8px; line-height: 1.65; }
+  .algo-metric { font-size: 12px; color: var(--accent3); margin-top: 10px; font-family: 'Courier New', monospace; font-style: italic; }
+
+  /* ══════════════════════════════════════════════
+     ERA5 비교 카드
+  ══════════════════════════════════════════════ */
+  .era5-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(196px, 1fr));
+    gap: 1px;
+    margin: 20px 0;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+  .era5-card {
+    background: var(--surface2);
+    padding: 16px;
+    border: none;
+    border-radius: 0;
+  }
+  .era5-name { font-family: 'EB Garamond', serif; font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .era5-res   { font-size: 11px; color: var(--accent); margin-bottom: 10px; font-style: italic; }
+  .era5-pro   { font-size: 12px; color: var(--ok); line-height: 1.6; }
+  .era5-con   { font-size: 12px; color: var(--warn); line-height: 1.6; }
+
+  /* ══════════════════════════════════════════════
+     편향 수치 카드
+  ══════════════════════════════════════════════ */
+  .bias-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 1px;
+    margin: 20px 0;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+  .bias-card { background: var(--surface2); padding: 18px; border: none; border-radius: 0; }
+  .bias-label { font-size: 11px; color: var(--text3); margin-bottom: 6px; font-style: italic; }
+  .bias-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .bias-val.neg  { color: var(--danger); }
+  .bias-val.pos  { color: var(--accent4); }
+  .bias-val.good { color: var(--ok); }
+  .bias-desc { font-size: 12px; color: var(--text2); margin-top: 8px; line-height: 1.6; }
+
+  /* ══════════════════════════════════════════════
+     합의 목록 & 모순 항목
+  ══════════════════════════════════════════════ */
+  .consensus-list { list-style: none; }
+  .consensus-list li {
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 15px; color: var(--text2);
+  }
+  .consensus-list li:last-child { border-bottom: 1px solid var(--border); }
+  .c-stars { color: var(--star); white-space: nowrap; font-size: 13px; padding-top: 3px; }
+  .c-text  { flex: 1; }
+  .c-src   { font-size: 12px; color: var(--text3); margin-top: 3px; font-style: italic; }
+
+  .conflict-item {
+    background: var(--surface2);
+    border: 1px solid rgba(200,80,60,0.3);
+    border-left: 3px solid var(--danger);
+    border-radius: 0;
+    padding: 18px 22px;
+    margin-bottom: 14px;
+  }
+  .conflict-title {
+    font-family: 'EB Garamond', serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--danger);
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .conflict-sides { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .conflict-side  { font-size: 13px; color: var(--text2); line-height: 1.65; }
+  .conflict-side strong {
+    display: block; color: var(--text);
+    margin-bottom: 4px; font-size: 10px;
+    letter-spacing: 1px; text-transform: uppercase;
+    font-family: 'EB Garamond', serif; font-style: italic;
+  }
+  .conflict-verdict {
+    font-size: 13px; color: var(--text3);
+    margin-top: 12px; padding-top: 12px;
+    border-top: 1px solid var(--border);
+    font-style: italic;
+  }
+
+  /* ══════════════════════════════════════════════
+     공백 카드
+  ══════════════════════════════════════════════ */
+  .gap-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 1px;
+    margin: 20px 0;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+  .gap-card { background: var(--surface2); padding: 18px; border: none; border-radius: 0; }
+  .gap-priority { font-size: 10px; font-style: italic; letter-spacing: 1px; color: var(--accent4); margin-bottom: 8px; }
+  .gap-title {
+    font-family: 'EB Garamond', serif;
+    font-size: 15px; font-weight: 600;
+    color: var(--text); margin-bottom: 8px;
+  }
+  .gap-desc { font-size: 13px; color: var(--text2); line-height: 1.65; }
+
+  /* ══════════════════════════════════════════════
+     도구 카드
+  ══════════════════════════════════════════════ */
+  .tool-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 1px;
+    margin: 20px 0;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+  .tool-card { background: var(--surface2); padding: 18px; border: none; border-radius: 0; }
+  .tool-name {
+    font-family: 'EB Garamond', serif;
+    font-size: 17px; font-weight: 600;
+    color: var(--text); margin-bottom: 4px;
+  }
+  .tool-type  { font-size: 11px; color: var(--accent3); margin-bottom: 10px; font-style: italic; }
+  .tool-desc  { font-size: 13px; color: var(--text2); line-height: 1.65; }
+  .tool-tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .tool-tag {
+    background: rgba(200,150,60,0.1);
+    color: var(--accent);
+    border: 1px solid rgba(200,150,60,0.25);
+    padding: 2px 9px;
+    font-size: 11px;
+    font-style: italic;
+    font-family: 'EB Garamond', serif;
+  }
+
+  /* ══════════════════════════════════════════════
+     논문 목록 — 참고문헌 스타일
+  ══════════════════════════════════════════════ */
+  .paper-list { list-style: none; }
+  .paper-item {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    border-radius: 0;
+    padding: 18px 0 18px 20px;
+    margin-bottom: 0;
+    position: relative;
+  }
+  .paper-item::before {
+    content: '›';
+    position: absolute; left: 0; top: 20px;
+    color: var(--accent);
+    font-size: 16px;
+  }
+  .paper-title {
+    font-family: 'EB Garamond', serif;
+    font-size: 15px; font-weight: 600; font-style: italic;
+    color: var(--text); margin-bottom: 4px;
+  }
+  .paper-meta { font-size: 12px; color: var(--text3); margin-bottom: 8px; letter-spacing: 0.3px; }
+  .paper-finding { font-size: 14px; color: var(--text2); line-height: 1.7; }
+  .paper-badge {
+    display: inline-block; font-size: 10px;
+    padding: 1px 8px; margin-left: 8px; vertical-align: middle;
+    font-style: normal; font-family: sans-serif;
+    letter-spacing: 0.5px;
+  }
+  .badge-sota { background: rgba(200,150,60,0.15); color: var(--accent);  border: 1px solid rgba(200,150,60,0.35); }
+  .badge-key  { background: rgba(212,170,82,0.12); color: var(--accent2); border: 1px solid rgba(212,170,82,0.3); }
+  .badge-pre  { background: rgba(138,112,80,0.2);  color: var(--text3);   border: 1px solid var(--border); }
+
+  /* ══════════════════════════════════════════════
+     안내 박스 — 조판 주석 스타일
+  ══════════════════════════════════════════════ */
+  .info-box {
+    background: rgba(200,150,60,0.05);
+    border-left: 3px solid var(--accent);
+    border-right: none; border-top: none; border-bottom: none;
+    padding: 14px 18px;
+    margin: 20px 0;
+    font-size: 14px; color: var(--text2);
+    font-style: italic;
+  }
+  .warn-box {
+    background: rgba(200,136,64,0.05);
+    border-left: 3px solid var(--accent4);
+    padding: 14px 18px;
+    margin: 20px 0;
+    font-size: 14px; color: var(--text2);
+  }
+
+  /* ══════════════════════════════════════════════
+     감성 바
+  ══════════════════════════════════════════════ */
+  .sentiment-bar-wrap { margin: 24px 0; }
+  .sentiment-row { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+  .sentiment-label { width: 52px; font-size: 13px; color: var(--text2); font-style: italic; }
+  .sentiment-bar-bg { flex: 1; background: var(--border); height: 18px; overflow: hidden; }
+  .sentiment-fill {
+    height: 100%;
+    display: flex; align-items: center; padding-left: 10px;
+    font-size: 11px; font-weight: 700; color: var(--bg);
+    font-family: sans-serif;
+  }
+  .sentiment-fill.positive { background: var(--ok);     width: 35%; }
+  .sentiment-fill.neutral  { background: var(--accent); width: 45%; }
+  .sentiment-fill.negative { background: var(--danger); width: 20%; }
+
+  /* ══════════════════════════════════════════════
+     성능 위계 바
+  ══════════════════════════════════════════════ */
+  .hierarchy { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+  .h-level { display: flex; align-items: center; gap: 12px; }
+  .h-rank {
+    width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 800; flex-shrink: 0;
+    font-family: sans-serif;
+  }
+  .h-bar-wrap { flex: 1; background: var(--border); height: 26px; overflow: hidden; position: relative; }
+  .h-bar {
+    height: 100%;
+    display: flex; align-items: center;
+    padding: 0 14px; font-size: 13px; font-weight: 600;
+    font-family: 'EB Garamond', serif;
+  }
+  .h-note { font-size: 11px; color: var(--text3); width: 130px; flex-shrink: 0; font-style: italic; }
+
+  /* ══════════════════════════════════════════════
+     콜아웃 — 책 인용 박스 스타일
+  ══════════════════════════════════════════════ */
+  .callout {
+    padding: 16px 20px;
+    margin: 24px 0;
+    font-size: 14px;
+    font-style: italic;
+    border-radius: 0;
+  }
+  .callout-insight {
+    background: rgba(106,170,88,0.07);
+    border-left: 3px solid var(--ok);
+    color: var(--ok);
+  }
+  .callout-warning {
+    background: rgba(200,80,64,0.07);
+    border-left: 3px solid var(--danger);
+    color: var(--danger);
+  }
+
+  /* ══════════════════════════════════════════════
+     푸터 — 판권 페이지 스타일
+  ══════════════════════════════════════════════ */
+  footer {
+    background: var(--surface);
+    border-top: 2px solid var(--border);
+    padding: 40px 24px;
+    text-align: center;
+    font-family: 'EB Garamond', serif;
+    font-size: 13px;
+    color: var(--text3);
+    font-style: italic;
+    letter-spacing: 0.3px;
+  }
+  footer::before {
+    content: '✦';
+    display: block;
+    font-style: normal;
+    font-size: 18px;
+    color: var(--border);
+    margin-bottom: 14px;
+  }
+
+  /* ══════════════════════════════════════════════
+     태그 / 뱃지
+  ══════════════════════════════════════════════ */
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-style: italic;
+    font-family: 'EB Garamond', serif;
+    padding: 1px 8px;
+    background: rgba(200,150,60,0.12);
+    color: var(--accent);
+    border: 1px solid rgba(200,150,60,0.25);
+    margin-right: 4px;
+  }
+  .tag.green  { background: rgba(106,170,88,0.12);  color: var(--accent3); border-color: rgba(106,170,88,0.25); }
+  .tag.orange { background: rgba(204,136,64,0.12);  color: var(--accent4); border-color: rgba(204,136,64,0.25); }
+  .tag.purple { background: rgba(212,170,82,0.12);  color: var(--accent2); border-color: rgba(212,170,82,0.25); }
+  .tag.gray   { background: rgba(138,112,80,0.15);  color: var(--text3);   border-color: var(--border); }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+
+  /* ══════════════════════════════════════════════
+     반응형
+  ══════════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    .conflict-sides { grid-template-columns: 1fr; }
+    .trust-level { grid-template-columns: repeat(3, 1fr); }
+    body { font-size: 15px; }
+    .container { padding: 0 18px; }
+    .hero { padding: 56px 18px 52px; }
+    .hero h1 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<div class="hero">
+  <div class="hero-badge">종합 리서치 보고서</div>
+  <h1>풍력 MCP 장기보정에서<br><em>ERA5 & 재분석 데이터 + AI 모델</em></h1>
+  <p class="hero-sub">Measure-Correlate-Predict 방법론에서의 머신러닝 활용 현황 및 최신 트렌드</p>
+  <div class="hero-meta">
+    <span>📅 2026-05-04</span>
+    <span>🔍 웹 · 학술 · 커뮤니티 병렬 조사</span>
+    <span>📄 37+ 웹 출처 · 15+ 피어리뷰 · 8 arXiv</span>
+    <span>✅ 교차 검증 완료</span>
+  </div>
+</div>
+
+<!-- Trust strip -->
+<div class="trust-strip">
+  <div class="trust-grid">
+    <div class="trust-item">
+      <div class="trust-num">14</div>
+      <div class="trust-label">★★★ 고신뢰도 합의</div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-num">11</div>
+      <div class="trust-label">★★☆ 중신뢰도 합의</div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-num">6</div>
+      <div class="trust-label">⚠ 주요 모순·논쟁</div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-num">7</div>
+      <div class="trust-label">□ 정보 공백 영역</div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-num">60개국+</div>
+      <div class="trust-label">ERA5 적용 연구 지역</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MAIN ═══════════════ -->
+<div class="container">
+
+  <!-- TOC -->
+  <nav class="toc">
+    <div class="toc-title">목차</div>
+    <ol>
+      <li><a href="#exec">이그제큐티브 서머리</a></li>
+      <li><a href="#mcp-overview">MCP 방법론 개요</a></li>
+      <li><a href="#reanalysis">재분석 데이터 비교 (ERA5 중심)</a></li>
+      <li><a href="#algorithms">AI/ML 알고리즘 분류 및 성능 비교</a></li>
+      <li><a href="#sota">2024–2025 최신 연구 (SOTA)</a></li>
+      <li><a href="#tools">주요 소프트웨어 도구</a></li>
+      <li><a href="#industry">산업 채택 현황 및 커뮤니티 반응</a></li>
+      <li><a href="#consensus">교차 검증: 합의 vs 모순</a></li>
+      <li><a href="#gaps">미해결 과제 및 연구 공백</a></li>
+      <li><a href="#refs">주요 논문 및 출처</a></li>
+    </ol>
+  </nav>
+
+  <!-- ─── 1. EXECUTIVE SUMMARY ─── -->
+  <section id="exec">
+    <div class="section-label">Executive Summary</div>
+    <h2>핵심 발견 요약</h2>
+    <p>풍력 자원평가의 핵심 방법론인 MCP(Measure-Correlate-Predict)는 ERA5를 사실상의 표준 장기 참조 데이터로 채택하고 있으며, 2024–2025년에는 LSTM과 Transformer 기반 딥러닝이 전통 선형회귀를 크게 능가하는 시대로 진입했다. 그러나 산업계는 여전히 표준 툴과 IEC 61400-12-1:2022 준수를 우선시하며, AI/ML의 산업 도입은 학술 진보보다 5–10년 뒤처져 있다.</p>
+
+    <div class="exec-grid">
+      <div class="exec-card">
+        <div class="exec-card-icon">🏆</div>
+        <h4>2024-2025 SOTA 알고리즘</h4>
+        <p>LSTM/Transformer 기반 ERA5 편향 보정 — 해안 지역에서 평균 풍속 설명분산 <strong>70%+ 향상</strong>, MAE/RMSE <strong>20%+ 감소</strong> (Houndekindo & Ouarda 2025)</p>
+      </div>
+      <div class="exec-card alt">
+        <div class="exec-card-icon">📊</div>
+        <h4>성능 위계 (학계 합의)</h4>
+        <p>선형 회귀 &lt; ANN &lt; SVM ≈ RF &lt; LSTM/Transformer<br>RF가 same-site에서 MCP-corrected ERA5 대비 RMSE <strong>39% 개선</strong></p>
+      </div>
+      <div class="exec-card alt2">
+        <div class="exec-card-icon">🌐</div>
+        <h4>ERA5의 위상</h4>
+        <p>~31km 해상도, 1시간 간격, 1940년~현재. MERRA-2 대비 RMSE/MAE <strong>5–20% 우위</strong>. 단, 산악(-3~-4 m/s)·해상 강풍에서 체계적 과소추정</p>
+      </div>
+      <div class="exec-card alt3">
+        <div class="exec-card-icon">⚠️</div>
+        <h4>핵심 장벽</h4>
+        <p>ML-MCP의 불확실성 정량화(UQ) 표준 미비, IEC 61400-15-2 매핑 불명확, "bankable" 인증 체계 부재 → 산업 도입 지연</p>
+      </div>
+    </div>
+
+    <div class="trust-level">
+      <div class="tl-card">
+        <div class="tl-stars">★★★</div>
+        <div class="tl-count">14</div>
+        <div class="tl-label">고신뢰도 합의<br>(3개 출처 모두 일치)</div>
+      </div>
+      <div class="tl-card">
+        <div class="tl-stars" style="color:var(--accent4)">★★☆</div>
+        <div class="tl-count">11</div>
+        <div class="tl-label">중신뢰도 합의<br>(2개 출처 일치)</div>
+      </div>
+      <div class="tl-card">
+        <div class="tl-stars" style="color:var(--danger)">⚠</div>
+        <div class="tl-count">6</div>
+        <div class="tl-label">모순·논쟁<br>(출처 간 충돌)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 2. MCP OVERVIEW ─── -->
+  <section id="mcp-overview">
+    <div class="section-label">방법론 개요</div>
+    <h2>MCP(Measure-Correlate-Predict)란?</h2>
+    <p>단기 현장 측정(6~24개월)과 장기 재분석 참조 데이터(10~30년)를 상관 분석하여 현장의 장기 풍황을 추정하는 풍력 자원평가 핵심 기법. IEC 61400-12-1:2022 표준이 권장하는 방법론이며, 최소 12개월 동기 측정 데이터와 상관계수 r > 0.7을 요구한다.</p>
+
+    <h3>📋 MCP 4단계 워크플로우</h3>
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 16px 0;">
+      <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:16px;">
+        <div style="font-size:11px; color:var(--accent); font-weight:700; letter-spacing:1px;">STEP 1</div>
+        <div style="font-size:15px; font-weight:800; color:#fff; margin:6px 0;">Measure</div>
+        <div style="font-size:12px; color:var(--text2);">후보지에 마스트/SODAR/LiDAR 설치, 6~24개월 풍속·풍향 측정</div>
+      </div>
+      <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:16px;">
+        <div style="font-size:11px; color:var(--accent2); font-weight:700; letter-spacing:1px;">STEP 2</div>
+        <div style="font-size:15px; font-weight:800; color:#fff; margin:6px 0;">Correlate</div>
+        <div style="font-size:12px; color:var(--text2);">동기 기간의 측정값과 재분석 참조 데이터 간 상관관계 모델 구축</div>
+      </div>
+      <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:16px;">
+        <div style="font-size:11px; color:var(--accent3); font-weight:700; letter-spacing:1px;">STEP 3</div>
+        <div style="font-size:15px; font-weight:800; color:#fff; margin:6px 0;">Predict</div>
+        <div style="font-size:12px; color:var(--text2);">장기 참조 데이터(10~30년)에 모델을 적용, 현장 장기 풍황 추정</div>
+      </div>
+      <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:16px;">
+        <div style="font-size:11px; color:var(--accent4); font-weight:700; letter-spacing:1px;">STEP 4</div>
+        <div style="font-size:15px; font-weight:800; color:#fff; margin:6px 0;">Uncertainty</div>
+        <div style="font-size:12px; color:var(--text2);">P50/P75/P90/P99 확률 분포로 결과 표현 및 불확실성 산정</div>
+      </div>
+    </div>
+
+    <h3>📜 산업 표준 프레임워크</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>표준/가이드라인</th><th>발행</th><th>주요 내용</th><th>신뢰도</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>IEC 61400-12-1:2022</td><td>IEC 2022-09</td><td>MCP를 site assessment 권장 절차로 명시. 최소 12개월 concurrent, r > 0.7 권고</td><td><span class="tag green">★★★</span></td></tr>
+          <tr><td>MEASNET v3 (2022)</td><td>MEASNET 2022-09</td><td>사실상 산업 표준. MCP 적용 조건과 불확실성 평가 방법론</td><td><span class="tag green">★★★</span></td></tr>
+          <tr><td>IEA Wind Task 36</td><td>IEA 2022</td><td>재분석 데이터 활용 권장 사례. ERA5 포함</td><td><span class="tag green">★★★</span></td></tr>
+          <tr><td>IEC 61400-15-2</td><td>IEC</td><td>불확실성 카테고리 정의. ML 모델 매핑 아직 불명확</td><td><span class="tag orange">★★☆</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ─── 3. REANALYSIS ─── -->
+  <section id="reanalysis">
+    <div class="section-label">데이터 인프라</div>
+    <h2>재분석 데이터 비교 — ERA5 중심</h2>
+
+    <div class="era5-grid">
+      <div class="era5-card" style="border-color: rgba(79,142,247,0.4);">
+        <div class="era5-name">ERA5 <span class="tag">사실상 표준</span></div>
+        <div class="era5-res">~31km · 1h · 1940~현재 · ECMWF</div>
+        <div class="era5-pro">✓ MERRA-2 대비 RMSE/MAE 5–20% 우위</div>
+        <div class="era5-pro">✓ 137레벨, 80km 고도까지</div>
+        <div class="era5-pro">✓ 1시간 간격, 무료, 광범위한 도구 통합</div>
+        <div class="era5-con">✗ 산악: -3~-4 m/s 체계적 과소추정</div>
+        <div class="era5-con">✗ 해상 강풍(&gt;10 m/s): 과소추정</div>
+        <div class="era5-con">✗ 해안 land-sea 불연속 처리 한계</div>
+      </div>
+      <div class="era5-card">
+        <div class="era5-name">ERA5-Land</div>
+        <div class="era5-res">~9km · 1h · 1950~현재 · ECMWF</div>
+        <div class="era5-pro">✓ 지면 고해상도 ERA5</div>
+        <div class="era5-con">✗ 지면 변수에 한정</div>
+      </div>
+      <div class="era5-card">
+        <div class="era5-name">MERRA-2</div>
+        <div class="era5-res">~50km · 1h · 1980~현재 · NASA</div>
+        <div class="era5-pro">✓ 무료, 장기 커버리지</div>
+        <div class="era5-con">✗ ERA5 대비 열위 (RMSE 5~20%↑)</div>
+        <div class="era5-con">✗ 단독 사용 시 생산량 5%+ 편향</div>
+      </div>
+      <div class="era5-card">
+        <div class="era5-name">CERRA <span class="tag green">부상 중</span></div>
+        <div class="era5-res">5.5km · 1h · 유럽 · Copernicus</div>
+        <div class="era5-pro">✓ 유럽 권역에서 ERA5 대비 명확한 개선</div>
+        <div class="era5-pro">✓ 편향 거의 0 (Mediterranean 평가)</div>
+        <div class="era5-con">✗ 데이터 release ~2년 lag</div>
+        <div class="era5-con">✗ windPRO/Windographer 통합 미비</div>
+      </div>
+      <div class="era5-card">
+        <div class="era5-name">CFSR/CFSv2</div>
+        <div class="era5-res">~38km · 1h · 1979~현재 · NOAA</div>
+        <div class="era5-pro">✓ 북미 지역 안정적</div>
+        <div class="era5-con">✗ ERA5 대비 성능 낮음</div>
+      </div>
+      <div class="era5-card" style="border-color: rgba(56,201,163,0.3);">
+        <div class="era5-name">ERA6 <span class="tag green">2026-03 Production</span></div>
+        <div class="era5-res">~14km · ECMWF · 2026-03~ Production 시작</div>
+        <div class="era5-pro">✓ Vortex FDC 1,000+ 사이트 분석: 40개국 70%에서 우위 (+1% r)</div>
+        <div class="era5-pro">✓ ERA5보다 고해상도(~14km), ML-MCP 재학습 필요</div>
+        <div class="era5-con">✗ 영국 등 일부 지역에서 ERA5 대비 열세</div>
+        <div class="era5-con">✗ 전체 기간 데이터 완성 시까지 신중 평가 필요</div>
+      </div>
+    </div>
+
+    <h3>ERA5 지형별 편향 특성</h3>
+    <div class="bias-grid">
+      <div class="bias-card">
+        <div class="bias-label">산악·복잡 지형 (고도 500m+)</div>
+        <div class="bias-val neg">-3 ~ -4 m/s</div>
+        <div class="bias-desc">31km 격자가 능선·계곡의 speed-up 효과를 포착하지 못해 발생. 풍력단지가 위치하는 능선 정상의 풍속 과소평가</div>
+      </div>
+      <div class="bias-card">
+        <div class="bias-label">해상 강풍 (&gt;10 m/s)</div>
+        <div class="bias-val neg">과소추정</div>
+        <div class="bias-desc">Gandoin & Garza (WES 2024): Charnock 파라미터 0.018 적용 보정 제안. 산업계에서 가장 자주 인용되는 ERA5 경고 논문</div>
+      </div>
+      <div class="bias-card">
+        <div class="bias-label">육상 (평균)</div>
+        <div class="bias-val pos">+0.166 m/s</div>
+        <div class="bias-desc">평균적으로 소폭 과대추정. 비교적 신뢰할 만한 영역</div>
+      </div>
+      <div class="bias-card">
+        <div class="bias-label">해상 (평균)</div>
+        <div class="bias-val neg">-0.136 m/s</div>
+        <div class="bias-desc">평균 소폭 과소추정. 해안 격자의 land-sea 혼합 효과</div>
+      </div>
+      <div class="bias-card">
+        <div class="bias-label">ERA5 vs MERRA-2 우위</div>
+        <div class="bias-val good">5–20%</div>
+        <div class="bias-desc">RMSE/MAE 기준, <strong>지역·메트릭 의존</strong>. Olauson 2018(Renewable Energy)이 ~20% 인용. Li et al. 2022에서는 5% 수준. "20% 우위"는 풍력 시뮬레이션 오차 기준 수치로 단순 일반화 주의.</div>
+      </div>
+      <div class="bias-card">
+        <div class="bias-label">LTC 불확실성 감소</div>
+        <div class="bias-val good">~20%</div>
+        <div class="bias-desc">MERRA-2 대비 ERA5 사용 시 1년 측정으로 1~5년 예측의 장기보정 불확실성 약 20% 감소 (Olauson 2018, Davidson 2022)</div>
+      </div>
+    </div>
+
+    <div class="callout callout-insight">
+      <strong>🔑 핵심 인사이트 (★★★ 합의):</strong> ERA5의 산악·해상 강풍 한계는 학술·웹·커뮤니티 3개 출처 모두에서 동일한 정량 근거(Gualtieri 2022, Hahmann 2024 WES)를 인용하며 경고. <strong>단일 재분석 의존은 위험</strong> — 다중 reference (ERA5+MERRA-2+NEWA) 교차 검증이 모범 관행.
+    </div>
+  </section>
+
+  <!-- ─── 4. ALGORITHMS ─── -->
+  <section id="algorithms">
+    <div class="section-label">알고리즘 분류</div>
+    <h2>AI/ML 알고리즘 분류 및 성능 비교</h2>
+
+    <h3>성능 위계 (학계 합의 — ★★★)</h3>
+    <div class="hierarchy">
+      <div class="h-level">
+        <div class="h-rank" style="background:var(--text3); color:#fff;">5</div>
+        <div class="h-bar-wrap">
+          <div class="h-bar" style="background: linear-gradient(90deg, rgba(93,100,128,0.3) 25%, transparent); width:25%; color:var(--text2);">선형 회귀 (OLS / VR)</div>
+        </div>
+        <div class="h-note">기준 성능</div>
+      </div>
+      <div class="h-level">
+        <div class="h-rank" style="background:var(--accent4); color:#fff;">4</div>
+        <div class="h-bar-wrap">
+          <div class="h-bar" style="background: linear-gradient(90deg, rgba(247,168,79,0.35) 45%, transparent); width:45%; color:var(--accent4);">ANN (전통 신경망)</div>
+        </div>
+        <div class="h-note">+26.5% 비용 절감 vs 선형</div>
+      </div>
+      <div class="h-level">
+        <div class="h-rank" style="background:var(--accent3); color:#fff;">3</div>
+        <div class="h-bar-wrap">
+          <div class="h-bar" style="background: linear-gradient(90deg, rgba(56,201,163,0.35) 62%, transparent); width:62%; color:var(--accent3);">SVM / Random Forest / XGBoost</div>
+        </div>
+        <div class="h-note">Díaz 2018 통계적 유의 입증</div>
+      </div>
+      <div class="h-level">
+        <div class="h-rank" style="background:var(--accent); color:#fff;">2</div>
+        <div class="h-bar-wrap">
+          <div class="h-bar" style="background: linear-gradient(90deg, rgba(79,142,247,0.4) 80%, transparent); width:80%; color:var(--accent);">LSTM (Long Short-Term Memory)</div>
+        </div>
+        <div class="h-note">RMSE 20%↓, 분산 70%↑</div>
+      </div>
+      <div class="h-level">
+        <div class="h-rank" style="background:var(--accent2); color:#fff;">1</div>
+        <div class="h-bar-wrap">
+          <div class="h-bar" style="background: linear-gradient(90deg, rgba(124,106,247,0.45) 92%, transparent); width:92%; color:var(--accent2);">Transformer / LSTM+Transformer</div>
+        </div>
+        <div class="h-note">2024-2025 SOTA</div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      📌 "ANN이 선형보다 우수"(Velázquez 2011)와 "SVM/RF가 ANN보다 우수"(Díaz 2018)는 상충이 아니라 <strong>시기적 진화</strong> — 2010년대 초 → 2018년 이후의 학계 합의 변화를 반영한다.
+    </div>
+
+    <h3>알고리즘별 상세 비교</h3>
+    <div class="algo-grid">
+
+      <!-- 전통 기법 -->
+      <div class="algo-card traditional">
+        <div class="algo-tier">전통 통계 기법</div>
+        <div class="algo-name">선형 회귀 (OLS / VR)</div>
+        <div class="algo-perf">
+          <div class="perf-bar-wrap"><div class="perf-bar" style="width:25%"></div></div>
+          <div class="perf-score">25</div>
+        </div>
+        <div class="algo-desc">Simple Linear Regression, Variance Ratio. 분산이 항상 과소추정되는 한계. 산업에서 여전히 기본값으로 사용.</div>
+        <div class="algo-metric">RMSE ~2.20 m/s (Li 2022)</div>
+      </div>
+
+      <div class="algo-card traditional">
+        <div class="algo-tier">전통 통계 기법</div>
+        <div class="algo-name">Matrix Method / Weibull Scaling</div>
+        <div class="algo-perf">
+          <div class="perf-bar-wrap"><div class="perf-bar" style="width:32%"></div></div>
+          <div class="perf-score">32</div>
+        </div>
+        <div class="algo-desc">2D 결합 확률분포 기반. 비선형 관계 일부 모델링 가능. windPRO·Windographer 기본 제공. Weibull 적합성 보존이 강점.</div>
+        <div class="algo-metric">분산 보존 특화</div>
+      </div>
+
+      <!-- ML 고전 -->
+      <div class="algo-card ml-classic">
+        <div class="algo-tier">트리/커널 기반 ML</div>
+        <div class="algo-name">Random Forest (RF)</div>
+        <div class="algo-perf">
+          <div class="perf-bar-wrap"><div class="perf-bar" style="width:72%"></div></div>
+          <div class="perf-score">72</div>
+        </div>
+        <div class="algo-desc">ANN보다 통계적으로 유의하게 우수 (Díaz 2018). Same-site에서 MCP-ERA5 대비 RMSE 39% 개선. 소표본에서 안정적. 외삽 약점 존재.</div>
+        <div class="algo-metric">RMSE &lt; 0.425 m/s (10년, hub height)</div>
+      </div>
+
+      <div class="algo-card ml-classic">
+        <div class="algo-tier">트리/커널 기반 ML</div>
+        <div class="algo-name">SVM / SVR</div>
+        <div class="algo-perf">
+          <div class="perf-bar-wrap"><div class="perf-bar" style="width:68%"></div></div>
+          <div class="perf-score">68</div>
+        </div>
+        <div class="algo-desc">RF와 통계적으로 유사 성능 (Díaz 2018 — RF↔SVM 차이 유의하지 않음). 소표본·고차원에서 강점. brightwind에 기본 포함.</div>
+        <div class="algo-metric">MAE, MARE, R² 전 지표 우수</div>
+      </div>
+
+      <div class="algo-card ml-classic">
+        <div class="algo-tier">부스팅 ML</div>
+        <div class="algo-name">XGBoost / Quantile RF</div>
+        <div class="algo-perf">
+          <div class="perf-bar-wrap"><div class="perf-bar" style="width:74%"></div></div>
+          <div class="perf-score">74</div>
+        </div>
+        <div class="algo-desc">Cheng et al. 2023: 중국 2,384개 관측소에서 ERA5 systematic error 최대 100배 감소. QRF(Quantile RF)는 ML 보정된 ERA5가 3km 다운스케일 능가하는 패러다임 전환 근거.</div>
+        <div class="algo-metric">ERA5 systematic error 100배↓ (단독 주장)</div>
+      </div>
+
+      <!-- DL: RNN -->
+      <div class="algo-card dl-rnn">
+        <div class="algo-tier">딥러닝 — 시퀀스</div>
+        <div class="algo-name">LSTM</div>
+        <div class="algo-perf">
+          <div class="perf-bar-wrap"><div class="perf-bar" style="width:85%"></div></div>
+          <div class="perf-score">85</div>
+        </div>
+        <div class="algo-desc">시계열 동역학 포착 특화. 캐나다 170개 관측소 검증 — 해안 지역 ERA5 대비 분산 70%+ 개선, RMSE 20%↓. 단 극단풍속 분포 꼬리 보정은 한계.</div>
+        <div class="algo-metric">해안 설명분산 70%+↑, RMSE 20%↓</div>
+      </div>
+
+      <!-- DL: Transformer -->
+      <div class="algo-card dl-trans">
+        <div class="algo-tier">딥러닝 — 트랜스포머</div>
+        <div class="algo-name">Transformer / Attention</div>
+        <div class="algo-perf">
+          <div class="perf-bar-wrap"><div class="perf-bar" style="width:88%"></div></div>
+          <div class="perf-score">88</div>
+        </div>
+        <div class="algo-desc">2024-2025 최첨단. 장기 시간적 의존성 포착. Houndekindo 2025에서 LSTM과 유사 성능. arXiv 2512.03606은 Transformer 우위 주장 — 학계 내 미해결 논쟁.</div>
+        <div class="algo-metric">모든 lead time에서 wind error 감소</div>
+      </div>
+
+      <!-- DL: Hybrid -->
+      <div class="algo-card dl-trans">
+        <div class="algo-tier">딥러닝 — 하이브리드</div>
+        <div class="algo-name">CNN-LSTM-Attention</div>
+        <div class="algo-perf">
+          <div class="perf-bar-wrap"><div class="perf-bar" style="width:83%"></div></div>
+          <div class="perf-score">83</div>
+        </div>
+        <div class="algo-desc">공간(CNN)·시간(LSTM)·중요도(Attention) 통합. ERA5 다운스케일링에 적용. 앙상블 방식(XGBoost+CatBoost+RF+LR)도 단일 모델보다 우수.</div>
+        <div class="algo-metric">Wind Engineering 2025</div>
+      </div>
+
+      <!-- DL: Generative -->
+      <div class="algo-card dl-gen">
+        <div class="algo-tier">생성형 딥러닝</div>
+        <div class="algo-name">GAN / Diffusion Model</div>
+        <div class="algo-perf">
+          <div class="perf-bar-wrap"><div class="perf-bar" style="width:78%"></div></div>
+          <div class="perf-score">78</div>
+        </div>
+        <div class="algo-desc">GAN: ERA5 31km → 1~2km 시공간 다운스케일링. Diffusion: ERA5→CERRA super-resolution (재학습 없이 임의 스케일). 2024-2025 급부상 중. 검증 아직 초기.</div>
+        <div class="algo-metric">arXiv 2401.15469, 2503.23893</div>
+      </div>
+
+    </div>
+
+    <div class="callout callout-warning" style="margin-top:24px;">
+      <strong>🆕 2026-03 신규 발견:</strong> <strong>Windographer v6</strong>가 ML 기반 데이터 재구성·LTA 자동화를 표준 도구에 정식 탑재 — AI의 산업 도입이 학술보다 더 빠르게 진행 중일 수 있음을 시사. 또한 <strong>ERA6가 2026년 3월 production 시작</strong>으로 기존 ML-MCP 모델의 ERA6 기반 재학습이 향후 과제로 부상.
+    </div>
+
+    <h3>알고리즘 성능 수치 비교표</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>알고리즘</th><th>대표 연구</th><th>성능 지표</th><th>강점</th><th>약점</th><th>신뢰도</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Linear Regression (OLS)</td>
+            <td>Carta 2013, Zhang 2014</td>
+            <td>RMSE ~2.20 m/s</td>
+            <td>단순·해석가능, 평균 보존</td>
+            <td>분산 과소추정, 비선형 불가</td>
+            <td><span class="tag green">★★★</span></td>
+          </tr>
+          <tr>
+            <td>ANN (전통)</td>
+            <td>Velázquez/Carta 2011</td>
+            <td>MAPE 26.5%↓ vs 선형</td>
+            <td>비선형 학습</td>
+            <td>RF/SVM보다 통계적 열위</td>
+            <td><span class="tag green">★★★</span></td>
+          </tr>
+          <tr>
+            <td>SVM/SVR</td>
+            <td>Díaz et al. 2018</td>
+            <td>MAE, MARE, R² 전 지표 우수</td>
+            <td>소표본 안정, ANN 능가</td>
+            <td>대규모 학습 비용</td>
+            <td><span class="tag green">★★★</span></td>
+          </tr>
+          <tr>
+            <td>Random Forest</td>
+            <td>Rouholahnejad 2025, Díaz 2018</td>
+            <td>RMSE &lt;0.425 m/s (hub-height), same-site 39%↓</td>
+            <td>ANN 능가, 해석성</td>
+            <td>100km+ 외삽 시 bias ±0.37 m/s↑</td>
+            <td><span class="tag green">★★★</span></td>
+          </tr>
+          <tr>
+            <td>XGBoost</td>
+            <td>Cheng et al. 2023</td>
+            <td>ERA5 systematic error 100배↓</td>
+            <td>효율·정확</td>
+            <td>단독 주장, 맥락 확인 필요</td>
+            <td><span class="tag orange">★★☆</span></td>
+          </tr>
+          <tr>
+            <td>LSTM/Transformer</td>
+            <td>Houndekindo & Ouarda 2025</td>
+            <td>RMSE 20%↓, 해안 분산 70%+↑</td>
+            <td>시계열 동역학, 장기의존성</td>
+            <td>극단풍속 tail 보정 한계</td>
+            <td><span class="tag green">★★★</span></td>
+          </tr>
+          <tr>
+            <td>GAN/Diffusion</td>
+            <td>arXiv 2407.19086, 2401.15469</td>
+            <td>ERA5→1km 초해상도</td>
+            <td>다운스케일링 통합</td>
+            <td>검증 부족, 피어리뷰 초기</td>
+            <td><span class="tag gray">★☆☆</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ─── 5. SOTA ─── -->
+  <section id="sota">
+    <div class="section-label">최신 연구 동향</div>
+    <h2>2024–2025 최신 연구 (SOTA)</h2>
+
+    <h3>ERA5 보정 접근의 세대별 진화</h3>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-period">세대 1 · 2017–2020</div>
+        <div class="tl-title">ERA5 직접 사용 + 단순 MCP</div>
+        <div class="tl-desc">Linear Regression, Variance Ratio. ERA5 출시(2017) 후 빠르게 MERRA-2 대체. 표준화 초기.</div>
+      </div>
+      <div class="tl-item g2">
+        <div class="tl-dot"></div>
+        <div class="tl-period">세대 2 · 2020–2023</div>
+        <div class="tl-title">ERA5 + ML 후처리</div>
+        <div class="tl-desc">Random Forest, XGBoost, ANN을 MCP 상관 단계에 적용. Díaz 2018 정착으로 RF/SVM 우위 학계 합의. brightwind 오픈소스 등장.</div>
+      </div>
+      <div class="tl-item g3">
+        <div class="tl-dot"></div>
+        <div class="tl-period">세대 3 · 2023–2025</div>
+        <div class="tl-title">ERA5 + DL Bias Correction</div>
+        <div class="tl-desc">LSTM, Transformer로 ERA5 시간별 체계적 편향을 직접 보정. Houndekindo & Ouarda 2025이 캐나다 170개 사이트에서 검증. Rabault 2023의 QRF가 3km 다운스케일 능가 패러다임 제안.</div>
+      </div>
+      <div class="tl-item g4">
+        <div class="tl-dot"></div>
+        <div class="tl-period">세대 3.5 · 2025+</div>
+        <div class="tl-title">앙상블·확산 모델 + 불확실성 정량화</div>
+        <div class="tl-desc">GAN/Diffusion 기반 super-resolution. Conformal Prediction·베이지안 UQ 도입. ERA6 출시 예정. 다운스케일링+보정 end-to-end 통합 연구 활발.</div>
+      </div>
+    </div>
+
+    <h3>핵심 논문 하이라이트</h3>
+    <ul class="paper-list">
+      <li class="paper-item">
+        <div class="paper-title">
+          LSTM and Transformer-based framework for bias correction of ERA5 hourly wind speeds
+          <span class="paper-badge badge-sota">SOTA 2025</span>
+        </div>
+        <div class="paper-meta">Houndekindo, F.; Ouarda, T.B.M.J. · Energy 328 (2025) · Elsevier</div>
+        <div class="paper-finding">캐나다 170개 독립 관측소에서 LSTM/Transformer로 ERA5 시간 분해 스케일링 팩터 모델링. 해안 지역 median wind speed의 explained variance <strong>70%+ 개선</strong>, MAE/RMSE <strong>20%+ 감소</strong>. Global Wind Atlas 기반 표준 보정보다 우수. 극단풍속 꼬리 보정은 과제로 남음.</div>
+      </li>
+      <li class="paper-item">
+        <div class="paper-title">
+          Characterization of local wind profiles: a random forest approach for enhanced wind profile extrapolation
+          <span class="paper-badge badge-sota">WES 2025</span>
+        </div>
+        <div class="paper-meta">Rouholahnejad, F.; Gottschall, J. · Wind Energy Science 10, 143-159 (2025) · Copernicus OA</div>
+        <div class="paper-finding">네덜란드 북해 4개 floating lidar 사이트. Same-site에서 RF가 MCP-corrected ERA5 대비 RMSE <strong>39% 개선</strong> (0.73 vs ~1.22 m/s), R² 0.97. 단 100km+ 외삽 시 bias ±0.37 m/s 급증 한계 명시.</div>
+      </li>
+      <li class="paper-item">
+        <div class="paper-title">
+          Ensemble Machine Learning greatly improves ERA5 skills for wind energy applications
+          <span class="paper-badge badge-key">패러다임 전환 (논쟁)</span>
+        </div>
+        <div class="paper-meta">Cavaiola et al. (Energy and AI 13, 2023) · Elsevier · ⚠ 저자 "Rabault"로 자주 오인용됨</div>
+        <div class="paper-finding">Quantile Random Forest(QRF)로 ERA5 보정. <strong>ML 보정 ERA5(31km)가 3km 고해상도 다운스케일링보다 정확</strong>. 단, Vortex FDC가 직접 반박: WRF MAE 10.63% vs ERA5 raw 16.07% — WRF(물리 다운스케일)가 실제 산업 워크플로에서 우위. 지역·데이터셋에 따라 결론이 다를 수 있어 논쟁 진행 중.</div>
+      </li>
+      <li class="paper-item">
+        <div class="paper-title">
+          Performance assessment of five MCP models with three ML techniques
+          <span class="paper-badge badge-key">핵심 근거</span>
+        </div>
+        <div class="paper-meta">Díaz, S.; Carta, J.A.; Matías, J.M. · Applied Energy 209 (2018) · 인용 200+</div>
+        <div class="paper-finding">카나리아 제도 10개 관측소. <strong>SVM·RF가 ANN보다 모든 지표(MAE, MARE, R²)에서 통계적 유의(5%) 우수</strong>. SVM↔RF 간 차이는 유의하지 않음. 2018년 이후 ML-MCP 성능 위계 학계 합의의 핵심 논문.</div>
+      </li>
+      <li class="paper-item">
+        <div class="paper-title">
+          Underestimation of strong wind speeds offshore in ERA5
+          <span class="paper-badge badge-key">산업 인용 1위</span>
+        </div>
+        <div class="paper-meta">Hahmann / Gandoin & Garza · Wind Energy Science 9 (2024)</div>
+        <div class="paper-finding">ERA5의 해상 강풍 과소추정을 정량 입증. <strong>"이 편향이 모든 ERA5 사용자에게 보정 필요성이 명확하지 않을 수 있다"</strong>는 경고로 산업계에서 가장 많이 인용. Charnock 파라미터 0.018 보정 제안.</div>
+      </li>
+      <li class="paper-item">
+        <div class="paper-title">
+          Geographic variability in reanalysis wind speed biases
+          <span class="paper-badge badge-key">ECM 게재 진행 중</span>
+        </div>
+        <div class="paper-meta">Wang et al. (Imperial College London) · arXiv:2511.04781 → Energy Conversion and Management 게재 심사 중 (S019689042600035X)</div>
+        <div class="paper-finding">319개 UK 풍력단지에 cluster-based bias correction 적용. 월별 풍력 시뮬레이션 오차 <strong>32%+ 감소</strong>. ERA5 편향의 가장 심한 과소추정은 <strong>Scottish Highlands·Wales 산악 지역</strong>에서 발생. MERRA-2에도 동일 방법 적용 가능한 reanalysis-agnostic 접근.</div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ─── 6. TOOLS ─── -->
+  <section id="tools">
+    <div class="section-label">소프트웨어 생태계</div>
+    <h2>주요 소프트웨어 도구</h2>
+
+    <h3>상용 도구</h3>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <div class="tool-name">windPRO</div>
+        <div class="tool-type">상용 — EMD International (덴마크)</div>
+        <div class="tool-desc">산업 표준에 가장 가까운 MCP 소프트웨어. ERA5 Gaussian Grid, ERA5(T) Rectangular Grid, MERRA-2, EMD-WRF Europe+(ERA5) 등 글로벌 데이터 직접 접근. windPRO Online으로 20년 참조 데이터 즉시 활용.</div>
+        <div class="tool-tag-row">
+          <span class="tool-tag">ERA5 내장</span>
+          <span class="tool-tag">MERRA-2 내장</span>
+          <span class="tool-tag">OLS·VR·Matrix</span>
+          <span class="tool-tag">P50/P90</span>
+        </div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-name">Windographer</div>
+        <div class="tool-type">상용 — UL Renewables (미국)</div>
+        <div class="tool-desc">ERA5·MERRA-2 무료 다운로드. Matrix Time Series MCP, LTA 자동화. Markov 체인 기반 Wind Reference Year 기능. v6에서 크게 개선. G2 리뷰 "10년 써도 진화한다".</div>
+        <div class="tool-tag-row">
+          <span class="tool-tag">ERA5 내장</span>
+          <span class="tool-tag">Matrix MCP</span>
+          <span class="tool-tag">OpenWind 연동</span>
+        </div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-name">DNV WindFarmer</div>
+        <div class="tool-type">상용 — DNV</div>
+        <div class="tool-desc">Long-term adjustment 모듈 포함. DNV는 ML을 WRF→RANS CFD 가속화 "보조" 역할로 포지셔닝. 대체보다 보완 전략. 금융권 due-diligence에서 "bankable" 소프트웨어.</div>
+        <div class="tool-tag-row">
+          <span class="tool-tag">LTA 모듈</span>
+          <span class="tool-tag">bankable</span>
+          <span class="tool-tag">ML 보조</span>
+        </div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-name">WAsP / OpenWind</div>
+        <div class="tool-type">상용 — DTU / UL Renewables</div>
+        <div class="tool-desc">흐름 모델·레이아웃 설계 중심. Windographer로 데이터 전처리 후 입력하는 워크플로가 일반적. OpenWind는 Windographer MM2 파일 직접 지원.</div>
+        <div class="tool-tag-row">
+          <span class="tool-tag">흐름 모델</span>
+          <span class="tool-tag">레이아웃 설계</span>
+        </div>
+      </div>
+    </div>
+
+    <h3>오픈소스 생태계</h3>
+    <div class="tool-grid">
+      <div class="tool-card" style="border-color: rgba(56,201,163,0.3);">
+        <div class="tool-name">brightwind</div>
+        <div class="tool-type">오픈소스 — Python · GNU LGPL v3.0 · BrightWind Analysis</div>
+        <div class="tool-desc">IEA Task 43 생태계의 핵심 오픈소스 라이브러리. MCP 6종 메서드 제공: OLS, OrthogonalLS, MLR, SpeedSort, <strong>SVR</strong>, SimpleSpeedRatio. "투명성·재현성"이 최대 장점. 컨설팅 회사 내부 워크플로에 점진적 침투.</div>
+        <div class="tool-tag-row">
+          <span class="tool-tag green">SVR 포함</span>
+          <span class="tool-tag green">IEA Task 43</span>
+          <span class="tool-tag green">PyPI</span>
+          <span class="tool-tag green">GitHub</span>
+        </div>
+      </div>
+      <div class="tool-card" style="border-color: rgba(56,201,163,0.3);">
+        <div class="tool-name">IEA Task 43 도구 모음</div>
+        <div class="tool-type">오픈소스 — IEA Wind · 26개국 67명</div>
+        <div class="tool-desc">WRA Data Model(JSON Schema), Wind Energy Domain Ontology, Digital Twin Best Practices. "데이터 모델 없이는 AI도 없다"는 일관된 메시지. floating lidar v1.2까지 확장.</div>
+        <div class="tool-tag-row">
+          <span class="tool-tag green">표준화</span>
+          <span class="tool-tag green">디지털트윈</span>
+        </div>
+      </div>
+      <div class="tool-card" style="border-color: rgba(56,201,163,0.3);">
+        <div class="tool-name">windpowerlib / pywind</div>
+        <div class="tool-type">오픈소스 — Python</div>
+        <div class="tool-desc">학술·R&D 목적. Vortex FDC pywind 튜토리얼 포함. 산업 의사결정용 보조 도구로 인식. ERA5 데이터 연동 워크플로 지원.</div>
+        <div class="tool-tag-row">
+          <span class="tool-tag green">학술 R&D</span>
+          <span class="tool-tag green">Vortex FDC</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 7. INDUSTRY ─── -->
+  <section id="industry">
+    <div class="section-label">커뮤니티 & 산업 반응</div>
+    <h2>산업 채택 현황 및 커뮤니티 반응</h2>
+
+    <h3>전반적 감성 분포</h3>
+    <div class="sentiment-bar-wrap">
+      <div class="sentiment-row">
+        <div class="sentiment-label" style="color:var(--ok)">긍정</div>
+        <div class="sentiment-bar-bg">
+          <div class="sentiment-fill positive">35%</div>
+        </div>
+      </div>
+      <div class="sentiment-row">
+        <div class="sentiment-label" style="color:var(--accent)">중립</div>
+        <div class="sentiment-bar-bg">
+          <div class="sentiment-fill neutral">45%</div>
+        </div>
+      </div>
+      <div class="sentiment-row">
+        <div class="sentiment-label" style="color:var(--danger)">부정</div>
+        <div class="sentiment-bar-bg">
+          <div class="sentiment-fill negative">20%</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      ⚠️ 풍력 MCP는 매우 전문적인 B2B 영역이라 Reddit·Hacker News의 직접적 토론은 거의 없음. 실질적 커뮤니티는 <strong>LinkedIn(전문가 pulse), GitHub(brightwind/IEA-Task-43), EMD/UL 공식 문서, WES peer review discussion</strong>에서 이루어짐.
+    </div>
+
+    <h3>학술계 vs 산업계 시각차 (⚠ 핵심 모순)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>구분</th><th>학술계</th><th>산업계</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>AI/ML MCP 현황</td>
+            <td>RF/LSTM/Transformer가 선형보다 우수함을 반복 증명. 패러다임 전환 중.</td>
+            <td>"선택 옵션" 수준. windPRO·Windographer의 OLS·VR·Matrix method 중심 유지.</td>
+          </tr>
+          <tr>
+            <td>채택 속도</td>
+            <td>2024-2025년 LSTM/Transformer·Diffusion 연구 급증. 빠른 진보.</td>
+            <td>IEC 표준 수렴까지 시간 필요. 금융 due-diligence 요건 충족 우선.</td>
+          </tr>
+          <tr>
+            <td>AI 신뢰성</td>
+            <td>성능 수치로 신뢰도 입증 시도.</td>
+            <td>"블랙박스" 우려. 재현성·감사 가능성 필수. XAI(SHAP/LIME) 도입 선행 필요.</td>
+          </tr>
+          <tr>
+            <td>ML 역할 정의</td>
+            <td>전통 MCP의 직접 대체 가능성 제시.</td>
+            <td>DNV 등: "대체 아닌 보완." WRF→CFD 가속화 보조 역할.</td>
+          </tr>
+          <tr>
+            <td>표준 우선순위</td>
+            <td>연구 목적 — IEC 표준에서 자유로움.</td>
+            <td>IEC 61400-15-2 / P50·P90 산정 적합성이 최우선. "bankable" 요건.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>주요 커뮤니티 논쟁</h3>
+
+    <h4>1. "단일 reanalysis vs 다중 reference"</h4>
+    <p>Eoltech의 Gaussorgues (LinkedIn): "단일 source 의존은 위험 — 프랑스/독일에서 MERRA-2 단독 시 생산량 5%+ 편향". windPRO MCP 모듈도 "여러 reference 비교" 권장. <strong>합의: ERA5+MERRA-2+NEWA 교차 검증이 모범 관행.</strong></p>
+
+    <h4>2. "복잡지형에서 ERA5 사용 가능한가?"</h4>
+    <p>학계 다수: "피하라(avoid) — COSMO-REA6, NEWA, AROME 등 고해상도 지역 재분석 권장". 실무: 이용 가능성·일관성·도구 통합 때문에 ERA5가 여전히 1순위. 보정 방법론 발전으로 병행 사용 지속.</p>
+
+    <h4>3. Lender(금융기관)의 AI 수용도</h4>
+    <p>산업 AI 도입의 가장 큰 실질 장벽은 <strong>lender bankability</strong>: ML 모델의 P50/P90 산정·IEC 61400-15-2 매핑·재현성이 갖춰지지 않으면 채택 어려움. 신생 AI 회사(NeuWave 등)의 결과를 lender가 "bankable" 인정하기까지 수년 track record 필요.</p>
+  </section>
+
+  <!-- ─── 8. CONSENSUS ─── -->
+  <section id="consensus">
+    <div class="section-label">교차 검증</div>
+    <h2>합의 사항 vs 주요 모순</h2>
+
+    <h3>★★★ 고신뢰도 합의 (3개 출처 모두 확인)</h3>
+    <ul class="consensus-list">
+      <li>
+        <div class="c-stars">★★★</div>
+        <div class="c-text">
+          MCP는 풍력 자원평가의 표준 방법론 (IEC 61400-12-1:2022 근거)
+          <div class="c-src">웹 §1 · 학술 Carta 2013 · 커뮤니티 §2</div>
+        </div>
+      </li>
+      <li>
+        <div class="c-stars">★★★</div>
+        <div class="c-text">
+          ERA5가 MERRA-2 대비 RMSE/MAE/상관계수에서 우위 (Olauson 2018 근거)
+          <div class="c-src">웹 §2.2 · 학술 §3.1 · 커뮤니티 §3.1</div>
+        </div>
+      </li>
+      <li>
+        <div class="c-stars">★★★</div>
+        <div class="c-text">
+          ERA5는 산악·복잡지형에서 풍속 체계적 과소추정 (중국 산악 -3~-4 m/s)
+          <div class="c-src">웹 §2.2 · 학술 Gualtieri 2022 · 커뮤니티 §3.2</div>
+        </div>
+      </li>
+      <li>
+        <div class="c-stars">★★★</div>
+        <div class="c-text">
+          ERA5는 해상 강풍(&gt;10 m/s)에서 과소추정 (Hahmann/Gandoin & Garza 2024 WES)
+          <div class="c-src">웹 §2.2 · 학술 §3.1 · 커뮤니티 §3.2 §6.1</div>
+        </div>
+      </li>
+      <li>
+        <div class="c-stars">★★★</div>
+        <div class="c-text">
+          LSTM/Transformer 기반 ERA5 bias correction이 2024–2025 SOTA (해안 분산 70%+ 개선)
+          <div class="c-src">웹 §4.2 · 학술 §1.3 · 커뮤니티 §4.2</div>
+        </div>
+      </li>
+      <li>
+        <div class="c-stars">★★★</div>
+        <div class="c-text">
+          RF가 MCP-corrected ERA5 프로파일보다 정확도/편향/상관에서 우수 (WES 2025)
+          <div class="c-src">웹 §4.1 · 학술 §4 · 커뮤니티 §6.3</div>
+        </div>
+      </li>
+      <li>
+        <div class="c-stars">★★★</div>
+        <div class="c-text">
+          windPRO(EMD)·Windographer(UL)가 산업 표준 상용 도구
+          <div class="c-src">웹 §5.1 · 학술(간접) · 커뮤니티 §2.1</div>
+        </div>
+      </li>
+      <li>
+        <div class="c-stars">★★★</div>
+        <div class="c-text">
+          Ensemble ML이 ERA5 풍력 활용 능력을 크게 향상 (Rabault 2023, Energy and AI)
+          <div class="c-src">웹 §6.2 · 학술 §1.3 · 커뮤니티 §4.2</div>
+        </div>
+      </li>
+    </ul>
+
+    <h3>⚠ 주요 모순 및 논쟁점</h3>
+    <div class="conflict-item">
+      <div class="conflict-title">⚠ 모순 #1 &nbsp;ML 보정 ERA5 vs 고해상도 물리 다운스케일 — 어느 것이 우월한가?</div>
+      <div class="conflict-sides">
+        <div class="conflict-side">
+          <strong>학술 (Rabault 2023)</strong>
+          ML로 보정된 ERA5(31km)가 3km 고해상도 다운스케일링보다 더 정확. "세심한 보정이 raw 고해상도보다 우월."
+        </div>
+        <div class="conflict-side">
+          <strong>웹 + 커뮤니티</strong>
+          CERRA(5.5km), NEWA(3km) 같은 고해상도 물리 다운스케일이 복잡지형에서 우위. 학계 다수 "피하라(avoid) ERA5 in complex terrain."
+        </div>
+      </div>
+      <div class="conflict-verdict">→ 지역·지형·해상도 특성에 따라 결론이 달라질 수 있음. 양측 입장 모두 타당한 맥락 존재. 보고서에서 균형 있게 서술 필요.</div>
+    </div>
+
+    <div class="conflict-item">
+      <div class="conflict-title">⚠ 모순 #2 &nbsp;Transformer vs LSTM — 어느 것이 우위인가?</div>
+      <div class="conflict-sides">
+        <div class="conflict-side">
+          <strong>Houndekindo & Ouarda 2025</strong>
+          LSTM과 Transformer가 유사한 성능. 어느 쪽도 일관된 우위 없음.
+        </div>
+        <div class="conflict-side">
+          <strong>arXiv:2512.03606 (2025)</strong>
+          Transformer가 모든 lead time에서 wind error 감소 면에서 우위 주장.
+        </div>
+      </div>
+      <div class="conflict-verdict">→ 학계 내 미해결 논쟁. 웹·커뮤니티에는 아직 도달하지 않음. 향후 지속 모니터링 필요.</div>
+    </div>
+
+    <div class="conflict-item">
+      <div class="conflict-title">⚠ 모순 #3 &nbsp;학술 진보 속도 vs 산업 채택 속도</div>
+      <div class="conflict-sides">
+        <div class="conflict-side">
+          <strong>학술계</strong>
+          2024-2025년 LSTM/Transformer/Diffusion 연구 급증. 패러다임 전환 진행 중.
+        </div>
+        <div class="conflict-side">
+          <strong>웹 + 커뮤니티</strong>
+          산업은 여전히 전통 MCP 주류. IEC 표준 수렴 전까지 AI/ML은 "학술 논문에서 활발"에 머물 것.
+        </div>
+      </div>
+      <div class="conflict-verdict">→ "학술 SOTA ≠ 산업 표준"을 명확히 인지해야 함. 학술-산업 격차 해소에 5-10년 소요 가능.</div>
+    </div>
+
+    <div class="conflict-item">
+      <div class="conflict-title">⚠ 모순 #4 &nbsp;ERA6 전환 시기 및 우위</div>
+      <div class="conflict-sides">
+        <div class="conflict-side">
+          <strong>커뮤니티 (Vortex FDC)</strong>
+          7개월 데이터: 40개국 70%에서 ERA6 우위. 글로벌 상관계수 +1%.
+        </div>
+        <div class="conflict-side">
+          <strong>학술</strong>
+          ERA6 직접 평가 거의 없음. 아직 본격 비교 불가.
+        </div>
+      </div>
+      <div class="conflict-verdict">→ 전체 데이터셋 2026년 말 예정. "일부 검증 진행 중, 최종 결론 시기상조"로 표기 권장.</div>
+    </div>
+  </section>
+
+  <!-- ─── 9. GAPS ─── -->
+  <section id="gaps">
+    <div class="section-label">미해결 과제</div>
+    <h2>연구 공백 및 미해결 과제</h2>
+
+    <div class="callout callout-warning">
+      <strong>🔴 가장 시급한 공백 (3개 출처 모두 동일하게 지적):</strong> ML 기반 MCP의 불확실성 정량화(UQ) 표준 미비 — IEC 61400-15-2와 ML 모델의 불확실성 분해 매핑이 불명확. 산업 표준화의 핵심 병목.
+    </div>
+
+    <div class="gap-grid">
+      <div class="gap-card">
+        <div class="gap-priority">🔴 최우선 · 3개 출처 합의</div>
+        <div class="gap-title">ML-MCP 불확실성 정량화 (UQ)</div>
+        <div class="gap-desc">ML 모델의 P50/P90 산정 방법론 표준 미비. IEC 61400-15-2 카테고리와의 매핑 불명확. QRF·베이지안·Conformal Prediction 활용 부족. 산업 도입의 핵심 병목.</div>
+      </div>
+      <div class="gap-card">
+        <div class="gap-priority">🟠 높음</div>
+        <div class="gap-title">한국·동아시아 복잡 지형 특화 연구</div>
+        <div class="gap-desc">MCP-ML 논문이 유럽·북미·캐나다에 편중. 한반도·동아시아 복잡 지형 특화 연구 매우 부족. KMA RDAPS vs ERA5 비교가 한국 특화 논점으로 별도 조사 필요.</div>
+      </div>
+      <div class="gap-card">
+        <div class="gap-priority">🟠 높음</div>
+        <div class="gap-title">극단풍속 (Extreme Wind) tail 보정</div>
+        <div class="gap-desc">LSTM/Transformer도 분포 꼬리(tail) 보정이 어렵다고 Houndekindo 2025 명시. 설계하중·구조 안전에 직결되는 영역. Charnock 파라미터 보정이 현재 주요 방법론.</div>
+      </div>
+      <div class="gap-card">
+        <div class="gap-priority">🟡 중간</div>
+        <div class="gap-title">부유식 해상풍력 (Floating Offshore)</div>
+        <div class="gap-desc">ERA5 + MCP-ML을 부유식 해상풍력에 적용한 사례 거의 없음. 2030+ 시장 성장 고려 시 중요. 해상 파랑-바람 상관, 운동체 보정 등 추가 변수 필요.</div>
+      </div>
+      <div class="gap-card">
+        <div class="gap-priority">🟡 중간</div>
+        <div class="gap-title">기후 비정상성 (Non-stationarity)</div>
+        <div class="gap-desc">기후변화로 풍황의 통계적 특성이 시간에 따라 변하는 문제. 20~30년 재분석 데이터로 학습한 MCP 모델이 미래 풍황을 과연 정확히 추정할 수 있는가?</div>
+      </div>
+      <div class="gap-card">
+        <div class="gap-priority">🟡 중간</div>
+        <div class="gap-title">모델 전이성 (Transferability)</div>
+        <div class="gap-desc">A 사이트에서 학습한 ML 모델이 B 사이트에서 얼마나 일반화되는가? 사이트 간 도메인 적응(transfer learning) 연구 부족. 100km+ 외삽 시 RF의 bias 급증(±0.37 m/s)이 한 사례.</div>
+      </div>
+      <div class="gap-card">
+        <div class="gap-priority">🟢 모니터링</div>
+        <div class="gap-title">컨설팅사 사내 알고리즘</div>
+        <div class="gap-desc">DNV, UL, Wood Mackenzie, K2 Management 등의 실제 사내 ML 알고리즘은 비공개. 학술 논문과 실무 격차의 블랙박스 영역. 산업 컨퍼런스 발표 추적 필요.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 10. REFS ─── -->
+  <section id="refs">
+    <div class="section-label">출처</div>
+    <h2>주요 논문 및 출처</h2>
+
+    <h3>피어리뷰 논문 (핵심)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>#</th><th>제목 / 저자</th><th>저널·연도</th><th>기여</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Carta, Velázquez, Cabrera (2013)</td><td>Renewable and Sustainable Energy Reviews</td><td>MCP 방법론 표준 분류 체계 확립. 분야의 기초 reference (인용 500+)</td></tr>
+          <tr><td>2</td><td>Olauson (2018)</td><td>Renewable Energy</td><td>ERA5: The new champion of wind power modelling. MERRA-2 대비 ~20% 우위</td></tr>
+          <tr><td>3</td><td>Díaz, Carta, Matías (2018)</td><td>Applied Energy (인용 200+)</td><td>SVM·RF가 ANN보다 5% 유의 우위 정량 입증 — 학계 성능 위계 핵심 근거</td></tr>
+          <tr><td>4</td><td>Gualtieri (2022)</td><td>Renewable and Sustainable Energy Reviews</td><td>15개 재분석 × 322개 위치 메타분석. 지형별 ERA5 신뢰도 가이드라인</td></tr>
+          <tr><td>5</td><td>Wessel et al. (2021)</td><td>Wind Energy Science</td><td>ERA5 LTC에서의 계절적 편향 효과 정량화</td></tr>
+          <tr><td>6</td><td>Hahmann / Gandoin & Garza (2024)</td><td>Wind Energy Science</td><td>ERA5 해상 강풍 과소추정 정량. 산업 인용 1위 경고 논문</td></tr>
+          <tr><td>7</td><td>Rabault et al. (2023)</td><td>Energy and AI</td><td>QRF 보정 ERA5가 3km 다운스케일 능가. 패러다임 전환 논문</td></tr>
+          <tr><td>8</td><td>Houndekindo & Ouarda (2025)</td><td>Energy 328</td><td>LSTM/Transformer ERA5 보정. 해안 분산 70%+↑, RMSE 20%↓. 2025 SOTA</td></tr>
+          <tr><td>9</td><td>Rouholahnejad & Gottschall (2025)</td><td>Wind Energy Science 10, 143-159</td><td>RF vs MCP-ERA5. Same-site RMSE 39%↓. 외삽 한계 명시</td></tr>
+          <tr><td>10</td><td>Velázquez & Carta (2011)</td><td>Applied Energy</td><td>ANN vs 선형 MCP. cost MAPE 최대 26.5%↓. "ANN > 선형" 시대의 기준 논문</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>arXiv 프리프린트 (피어리뷰 진행 중)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>arXiv ID</th><th>내용</th><th>연도</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>2511.04781</td><td>Geographic variability in ERA5 wind speed biases — UK 319개 풍력단지, 월별 오차 32%+↓ (Imperial College London)</td><td>2025</td></tr>
+          <tr><td>2504.15322</td><td>ReSA-ConvLSTM: 동적 climatology + ConvLSTM + residual self-attention, 10m wind RMSE 20%↓</td><td>2025</td></tr>
+          <tr><td>2503.23893</td><td>DiffScale: Diffusion 모델로 임의 스케일링 팩터 다운스케일 (재학습 불필요)</td><td>2025</td></tr>
+          <tr><td>2512.03606</td><td>Transformer 기반 관측 주도 해상 바람 NWP 보정</td><td>2025</td></tr>
+          <tr><td>2401.15469</td><td>ERA5→CERRA Diffusion 모델 super-resolution</td><td>2024</td></tr>
+          <tr><td>2407.08259</td><td>DL super-resolution 방법론 비교 (풍력 자원평가)</td><td>2024</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>산업 표준 및 기관 자료</h3>
+    <ul style="list-style:none; padding:0;">
+      <li style="padding:8px 0; border-bottom:1px solid var(--border); font-size:13px; color:var(--text2);">IEC 61400-12-1:2022 — 풍력터빈 파워 성능 측정 표준 (MCP 권장 포함)</li>
+      <li style="padding:8px 0; border-bottom:1px solid var(--border); font-size:13px; color:var(--text2);">MEASNET Evaluation of Site-Specific Wind Conditions v3 (2022)</li>
+      <li style="padding:8px 0; border-bottom:1px solid var(--border); font-size:13px; color:var(--text2);">IEA Wind Task 36 Recommended Practice Part 4 (2022)</li>
+      <li style="padding:8px 0; border-bottom:1px solid var(--border); font-size:13px; color:var(--text2);">IEA Wind Task 43 AGM 2025 보고서 (26개국 67명, WRA 디지털화)</li>
+      <li style="padding:8px 0; font-size:13px; color:var(--text2);">windPRO MCP Reference Manual — EMD International (현행)</li>
+    </ul>
+
+    <div class="warn-box" style="margin-top:24px;">
+      <strong>⚠ 리서치 한계:</strong>
+      <ul style="margin-top:8px; padding-left:18px; font-size:13px;">
+        <li>한국어 자료: "MCP"가 "Model Context Protocol"과 약어 충돌로 풍력 자원평가 자료 검색 어려움. 한국 학술 DB(DBpia, KISS, ScienceON) 직접 조회 필요.</li>
+        <li>컨설팅사 사내 알고리즘: DNV, UL, Wood Mackenzie 등은 비공개.</li>
+        <li>Hahmann 2024 WES, Houndekindo 2025 — 3개 채널 모두 동일 논문 인용. 후속 독립 검증 논문 부족.</li>
+        <li>GAN/Diffusion 모델: 대부분 arXiv 프리프린트 단계. 피어리뷰 확인 필요.</li>
+      </ul>
+    </div>
+  </section>
+
+</div><!-- /container -->
+
+<!-- Footer -->
+<footer>
+  <div>
+    풍력 MCP 장기보정 AI 모델 종합 리서치 보고서 &nbsp;·&nbsp; 작성일: 2026-05-04<br>
+    리서치 팀: web-researcher · academic-researcher · community-analyst · cross-validator<br>
+    <span style="margin-top:8px; display:block;">웹 37+ 출처 &nbsp;·&nbsp; 피어리뷰 논문 15편 &nbsp;·&nbsp; arXiv 프리프린트 8편 &nbsp;·&nbsp; 교차 검증 완료</span>
+  </div>
+</footer>
+
+</body>
+</html>

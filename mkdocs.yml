@@ -39,6 +39,7 @@ extra:
 nav:
   - Home: index.md
   - Guides:
+      - 풍력 MCP 장기보정 AI 모델 종합 리서치 보고서: html/report_wind_mcp_ai_models.html
       - HPC-MI 연구 제안서 초안: html/HPC-MI 연구 제안서 초안.html
       - gstack 설명서 및 시작 가이드: html/gstack-guide.html
       - 브레인크루 플러그인 구조와 운영 방식: html/braincrew_plugin_learning_note.html
