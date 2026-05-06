@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Template 01 — Minimal Academic</title>
+  <!--
+  ┌─────────────────────────────────────────────┐
+  │  TEMPLATE 01: Minimal Academic              │
+  │                                             │
+  │  용도: 리서치 보고서, 학술 문서, 논문 요약  │
+  │  특징: 최대 가독성, 여백 중심, 클래식 서체  │
+  │  컬러: 흑백 + 포인트 1색                   │
+  └─────────────────────────────────────────────┘
+
+  가독성 원칙 적용:
+  - 본문 18px / line-height 1.75 (장문 읽기 최적)
+  - 최적 줄 길이 65ch (WCAG 권장 45-85ch 중심값)
+  - Noto Serif KR — 한국어 장문 최적화
+  - 문단 간격 > 줄 간격 원칙 적용
+  -->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;700&family=Noto+Sans+KR:wght@400;600;700&family=Fira+Code:wght@400;500&display=swap');
+
+    :root {
+      --accent: #2563EB;       /* 단일 포인트 컬러 */
+      --text-primary: #1A1A1A;
+      --text-secondary: #555;
+      --text-muted: #888;
+      --bg: #FAFAF8;           /* 순백이 아닌 따뜻한 흰색 */
+      --border: #E5E5E0;
+      --code-bg: #F4F4F0;
+      --max-width: 720px;      /* 65ch ≈ 18px × 65 ≈ 720px */
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { font-size: 18px; scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Noto Serif KR', Georgia, serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.75;
+      padding: 0 24px;
+    }
+
+    /* ── 레이아웃 ── */
+    .page {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 80px 0 120px;
+    }
+
+    /* ── 헤더 ── */
+    .doc-header {
+      border-bottom: 2px solid var(--text-primary);
+      padding-bottom: 32px;
+      margin-bottom: 64px;
+    }
+    .doc-meta {
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+    .doc-meta span { margin-right: 24px; }
+    .doc-title {
+      font-size: 2.2rem;
+      font-weight: 700;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+    .doc-subtitle {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      font-weight: 300;
+      line-height: 1.6;
+    }
+
+    /* ── 목차 ── */
+    .toc {
+      background: var(--code-bg);
+      border-left: 3px solid var(--accent);
+      padding: 24px 28px;
+      margin-bottom: 56px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 0.88rem;
+    }
+    .toc-title {
+      font-weight: 700;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .toc ol { padding-left: 20px; }
+    .toc li { margin: 6px 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc a:hover { text-decoration: underline; }
+
+    /* ── 섹션 ── */
+    section { margin-bottom: 56px; }
+
+    h2 {
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    h2 .num {
+      color: var(--accent);
+      margin-right: 8px;
+    }
+
+    h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 32px 0 12px;
+      letter-spacing: -0.01em;
+    }
+
+    p { margin-bottom: 1.2em; }
+
+    p + p { text-indent: 1.5em; } /* 학술 문서 스타일: 동일 섹션 연속 문단 들여쓰기 */
+
+    /* ── 강조 ── */
+    strong { font-weight: 700; color: var(--text-primary); }
+    em { font-style: italic; color: var(--text-secondary); }
+
+    mark {
+      background: #FEF08A;
+      color: var(--text-primary);
+      padding: 0 3px;
+      border-radius: 2px;
+    }
+
+    /* ── 인용구 ── */
+    blockquote {
+      border-left: 3px solid var(--accent);
+      margin: 32px 0;
+      padding: 16px 24px;
+      color: var(--text-secondary);
+      font-style: italic;
+    }
+    blockquote cite {
+      display: block;
+      margin-top: 10px;
+      font-size: 0.8rem;
+      font-style: normal;
+      font-family: 'Noto Sans KR', sans-serif;
+      color: var(--text-muted);
+    }
+
+    /* ── 코드 ── */
+    code {
+      font-family: 'Fira Code', monospace;
+      background: var(--code-bg);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 0.83em;
+      color: #C53030;
+    }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 20px 24px;
+      overflow-x: auto;
+      margin: 24px 0;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.83rem;
+      line-height: 1.6;
+    }
+
+    /* ── 리스트 ── */
+    ul, ol {
+      padding-left: 24px;
+      margin-bottom: 1.2em;
+    }
+    li { margin-bottom: 0.4em; }
+    li::marker { color: var(--accent); }
+
+    /* ── 테이블 ── */
+    .table-wrap { overflow-x: auto; margin: 24px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 0.88rem;
+    }
+    th {
+      text-align: left;
+      padding: 10px 14px;
+      background: var(--text-primary);
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+    tr:hover td { background: var(--code-bg); }
+
+    /* ── 각주 ── */
+    .footnotes {
+      margin-top: 64px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+    .footnotes ol { padding-left: 20px; }
+    .footnotes li { margin-bottom: 6px; line-height: 1.5; }
+
+    /* ── 푸터 ── */
+    .doc-footer {
+      margin-top: 80px;
+      padding-top: 24px;
+      border-top: 2px solid var(--text-primary);
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* ── 다크 모드 ── */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #141414;
+        --text-primary: #E8E8E0;
+        --text-secondary: #AAA;
+        --text-muted: #666;
+        --border: #2A2A2A;
+        --code-bg: #1E1E1E;
+      }
+      mark { background: #713F12; color: #FEF08A; }
+    }
+
+    @media (max-width: 600px) {
+      html { font-size: 16px; }
+      .doc-title { font-size: 1.7rem; }
+      .page { padding: 40px 0 80px; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- 헤더 -->
+  <header class="doc-header">
+    <div class="doc-meta">
+      <span>리서치 보고서</span>
+      <span>2026-05-06</span>
+      <span>v1.0</span>
+    </div>
+    <h1 class="doc-title">보고서 제목을 이곳에 입력하세요</h1>
+    <p class="doc-subtitle">
+      부제 또는 요약 한 줄. 독자가 이 보고서에서 무엇을 얻는지 명확히 전달합니다.
+      너무 길지 않게 2-3줄 내외로 작성합니다.
+    </p>
+  </header>
+
+  <!-- 목차 -->
+  <nav class="toc" aria-label="목차">
+    <div class="toc-title">목차</div>
+    <ol>
+      <li><a href="#s1">배경 및 맥락</a></li>
+      <li><a href="#s2">핵심 발견</a></li>
+      <li><a href="#s3">상세 분석</a></li>
+      <li><a href="#s4">결론 및 권고사항</a></li>
+    </ol>
+  </nav>
+
+  <!-- 섹션 1 -->
+  <section id="s1">
+    <h2><span class="num">01</span>배경 및 맥락</h2>
+
+    <p>
+      이 템플릿은 <mark>학술 보고서, 리서치 문서, 논문 요약</mark>에 최적화된 미니멀 레이아웃입니다.
+      가독성 연구에 따르면 본문 폰트 18px, line-height 1.75, 줄 길이 65ch가 장문 독서 최적 조건입니다.
+    </p>
+
+    <p>
+      연속되는 문단은 들여쓰기로 구분합니다. 이는 독자가 새 문단의 시작을
+      빈 줄 없이도 인식할 수 있게 해주며, 세로 공간을 절약합니다.
+    </p>
+
+    <blockquote>
+      "Typography is the art and technique of arranging type to make written language
+      legible, readable and appealing when displayed."
+      <cite>— Robert Bringhurst, <em>The Elements of Typographic Style</em></cite>
+    </blockquote>
+  </section>
+
+  <!-- 섹션 2 -->
+  <section id="s2">
+    <h2><span class="num">02</span>핵심 발견</h2>
+
+    <h3>주요 수치</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>권장값</th>
+            <th>근거</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>본문 폰트 크기</td><td>16–18px</td><td>WCAG 2.1, Baymard Institute</td></tr>
+          <tr><td>행간 (line-height)</td><td>1.5–1.75</td><td>Nielsen Norman Group</td></tr>
+          <tr><td>줄 길이</td><td>60–70ch</td><td>Bringhurst, USWDS</td></tr>
+          <tr><td>문단 간격</td><td>1.2em</td><td>CSS Typography 가이드</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>주요 포인트</h3>
+    <ul>
+      <li>폰트 크기보다 <strong>줄 간격과 여백</strong>이 가독성에 더 큰 영향을 미침</li>
+      <li>한국어는 자모 밀도가 높아 <strong>Noto Serif KR</strong> 같은 전용 한국어 서체 사용 권장</li>
+      <li>다크 모드에서는 순백(#fff) 대신 <strong>연회색(#E8E8E0)</strong>을 사용해 눈부심 방지</li>
+      <li>단일 포인트 컬러로 링크·강조 요소를 통일하면 인지 부하 감소</li>
+    </ul>
+  </section>
+
+  <!-- 섹션 3 -->
+  <section id="s3">
+    <h2><span class="num">03</span>코드 예시</h2>
+
+    <p>인라인 코드는 <code>font-size: 0.83em</code> 크기로 본문과 구분합니다.</p>
+
+    <pre>/* 최적 가독성 CSS 기본값 */
+body {
+  font-size: 18px;
+  line-height: 1.75;
+  max-width: 65ch;
+  color: #1A1A1A;
+  font-family: 'Noto Serif KR', serif;
+}</pre>
+  </section>
+
+  <!-- 섹션 4 -->
+  <section id="s4">
+    <h2><span class="num">04</span>결론 및 권고사항</h2>
+
+    <p>
+      이 섹션에 최종 결론과 독자를 위한 실행 가능한 권고사항을 작성합니다.
+      신뢰도 높은 발견을 우선 기술하고, 불확실한 영역은 명시적으로 한계를 밝힙니다.
+    </p>
+
+    <ol>
+      <li>폰트 크기와 줄 간격부터 올바르게 설정하세요</li>
+      <li>단일 포인트 컬러 시스템으로 일관성을 유지하세요</li>
+      <li>모바일에서 <code>font-size: 16px</code>이 최소 기준임을 기억하세요</li>
+    </ol>
+  </section>
+
+  <!-- 각주 -->
+  <aside class="footnotes">
+    <ol>
+      <li>Bringhurst, R. (2004). <em>The Elements of Typographic Style</em>. Hartley & Marks.</li>
+      <li>WCAG 2.1 Success Criterion 1.4.4: Resize text.</li>
+      <li>Nielsen, J. (2006). F-Shaped Pattern for Reading Web Content. Nielsen Norman Group.</li>
+    </ol>
+  </aside>
+
+  <!-- 푸터 -->
+  <footer class="doc-footer">
+    <span>Template 01 — Minimal Academic</span>
+    <span>© 2026</span>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -38,13 +38,23 @@ extra:
 
 nav:
   - Home: index.md
-  - Guides:
-      - 풍력 MCP 장기보정 AI 모델 종합 리서치 보고서: html/report_wind_mcp_ai_models.html
-      - HPC-MI 연구 제안서 초안: html/HPC-MI 연구 제안서 초안.html
-      - gstack 설명서 및 시작 가이드: html/gstack-guide.html
-      - 브레인크루 플러그인 구조와 운영 방식: html/braincrew_plugin_learning_note.html
-      - 하네스 엔지니어링 MeetUp 후기: html/Harness Engineering MeetUp_20260422.html
-      - Python Docstring 추천 형식 종합 리서치: html/research_report_python_docstring.html
+  - 문서:
+      - 리서치와 제안:
+          - 풍력 MCP 장기보정 AI 모델 종합 리서치 보고서: html/report_wind_mcp_ai_models.html
+          - Python Docstring 추천 형식 종합 리서치: html/research_report_python_docstring.html
+          - HPC-MI 연구 제안서 초안: html/HPC-MI 연구 제안서 초안.html
+      - 가이드와 설계:
+          - HTML 보고서 디자인 가이드: html/html_report_design_guide.html
+          - gstack 설명서 및 시작 가이드: html/gstack-guide.html
+      - 템플릿 예시:
+          - Minimal Academic: html/example/template-01-minimal.html
+          - Dashboard Report: html/example/template-02-dashboard.html
+          - Editorial: html/example/template-03-editorial.html
+      - 노트와 기록:
+          - 브레인크루 플러그인 구조와 운영 방식: html/braincrew_plugin_learning_note.html
+          - 하네스 엔지니어링 MeetUp 후기: html/Harness Engineering MeetUp_20260422.html
+      - 원문 파일:
+          - 이호연_하네스 엔지니어링 PDF: files/이호연_하네스 엔지니어링.pdf
 
 markdown_extensions:
   - admonition

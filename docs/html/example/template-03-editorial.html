@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Template 03 — Editorial</title>
+  <!--
+  ┌─────────────────────────────────────────────┐
+  │  TEMPLATE 03: Editorial / Magazine          │
+  │                                             │
+  │  용도: 이그제큐티브 브리핑, 뉴스레터,       │
+  │        브랜드 보고서, 인사이트 문서          │
+  │  특징: 굵은 헤드라인, 멀티컬럼, 풀블리드 섹션│
+  │  컬러: 브랜드 강조색 + 중성 팔레트          │
+  └─────────────────────────────────────────────┘
+
+  에디토리얼 원칙:
+  - 헤드라인 임팩트: 크고 굵게, 대비 강조
+  - 리드 문단: 한 문장으로 핵심 전달
+  - 풀 블리드 배너 섹션으로 시각적 리듬 형성
+  - 2열 본문: 잡지식 가독성 (40ch × 2)
+  - pull-quote로 핵심 메시지 강조
+  -->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;700;900&family=Noto+Sans+KR:wght@400;500;700;900&family=Fira+Code:wght@400&display=swap');
+
+    :root {
+      --ink: #111111;
+      --ink-soft: #444;
+      --ink-muted: #888;
+      --rule: #222;
+      --bg: #FFFFFF;
+      --bg-soft: #F5F5F3;
+      --bg-dark: #111111;
+      --accent: #C41E3A;    /* 에디토리얼 레드 */
+      --accent-alt: #E8A020; /* 골드 포인트 */
+      --col-gap: 40px;
+      --content-w: 860px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { font-size: 17px; scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Noto Serif KR', Georgia, serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.7;
+    }
+
+    /* ── 상단 마스트헤드 ── */
+    .masthead {
+      border-bottom: 3px solid var(--rule);
+      padding: 20px 40px 16px;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+    .masthead-brand {
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+    }
+    .masthead-title {
+      font-family: 'Noto Serif KR', serif;
+      font-size: 1.6rem;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+    }
+    .masthead-date {
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 0.65rem;
+      color: var(--ink-muted);
+      text-align: right;
+    }
+
+    /* ── 히어로 섹션 ── */
+    .hero {
+      background: var(--bg-dark);
+      color: #fff;
+      padding: 64px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: 0.15;
+    }
+    .hero-eyebrow {
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+    }
+    .hero-headline {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      max-width: 700px;
+      margin-bottom: 24px;
+    }
+    .hero-lead {
+      font-size: 1.1rem;
+      font-weight: 300;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.75);
+      max-width: 560px;
+      margin-bottom: 32px;
+    }
+    .hero-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .tag {
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 4px 12px;
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 20px;
+      color: rgba(255,255,255,0.7);
+    }
+
+    /* ── 요약 바 ── */
+    .summary-bar {
+      background: var(--accent);
+      color: #fff;
+      padding: 16px 40px;
+      display: flex;
+      gap: 40px;
+      overflow-x: auto;
+    }
+    .summary-item {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .summary-item::before { content: '◆'; font-size: 0.5rem; opacity: 0.6; }
+    .summary-text {
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    /* ── 메인 콘텐츠 ── */
+    .content-wrap {
+      max-width: var(--content-w);
+      margin: 0 auto;
+      padding: 0 40px;
+    }
+
+    /* ── 섹션 레이아웃 ── */
+    .section {
+      padding: 56px 0;
+      border-bottom: 1px solid #E0E0E0;
+    }
+    .section:last-child { border-bottom: none; }
+
+    .section-label {
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      margin-bottom: 24px;
+      color: var(--ink);
+    }
+
+    h3 {
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ink-muted);
+      margin: 32px 0 12px;
+    }
+
+    /* ── 2열 본문 ── */
+    .two-col-text {
+      column-count: 2;
+      column-gap: var(--col-gap);
+      column-rule: 1px solid #E0E0E0;
+    }
+
+    p { margin-bottom: 1.1em; }
+    p.lead {
+      font-size: 1.15rem;
+      font-weight: 300;
+      line-height: 1.65;
+      color: var(--ink-soft);
+      column-span: all;
+      margin-bottom: 24px;
+    }
+
+    /* ── 풀 쿼트 ── */
+    .pull-quote {
+      column-span: all;
+      margin: 32px 0;
+      padding: 24px 32px;
+      border-left: 4px solid var(--accent);
+      background: var(--bg-soft);
+    }
+    .pull-quote blockquote {
+      font-size: 1.25rem;
+      font-weight: 700;
+      line-height: 1.45;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      margin-bottom: 10px;
+    }
+    .pull-quote cite {
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 0.75rem;
+      font-style: normal;
+      color: var(--ink-muted);
+    }
+
+    /* ── 강조 박스 ── */
+    .callout {
+      column-span: all;
+      background: var(--ink);
+      color: #fff;
+      padding: 28px 32px;
+      margin: 32px 0;
+      border-radius: 4px;
+    }
+    .callout-label {
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent-alt);
+      margin-bottom: 10px;
+    }
+    .callout p {
+      font-size: 0.9rem;
+      line-height: 1.65;
+      color: rgba(255,255,255,0.85);
+      margin-bottom: 0;
+    }
+
+    /* ── 수치 카드 행 ── */
+    .stat-row {
+      column-span: all;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: #E0E0E0;
+      border: 1px solid #E0E0E0;
+      margin: 32px 0;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .stat-card {
+      background: var(--bg);
+      padding: 24px 20px;
+    }
+    .stat-value {
+      font-size: 2.2rem;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      color: var(--ink);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat-value em {
+      font-size: 1rem;
+      font-weight: 400;
+      font-style: normal;
+      color: var(--accent);
+    }
+    .stat-label {
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 0.75rem;
+      color: var(--ink-muted);
+      line-height: 1.4;
+    }
+
+    /* ── 리스트 ── */
+    ul, ol { padding-left: 22px; margin-bottom: 1.1em; }
+    li { margin-bottom: 0.4em; }
+    li::marker { color: var(--accent); }
+    strong { font-weight: 700; }
+
+    /* ── 구분선 ── */
+    .rule { border: none; border-top: 1px solid #E0E0E0; margin: 0; }
+    .rule-thick { border: none; border-top: 3px solid var(--ink); margin: 0; }
+
+    /* ── 코드 ── */
+    code {
+      font-family: 'Fira Code', monospace;
+      background: var(--bg-soft);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 0.82em;
+      color: #C41E3A;
+    }
+
+    /* ── 테이블 ── */
+    .table-wrap { column-span: all; overflow-x: auto; margin: 24px 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; font-family: 'Noto Sans KR', sans-serif; }
+    th {
+      text-align: left;
+      padding: 10px 14px;
+      border-top: 2px solid var(--ink);
+      border-bottom: 1px solid var(--ink);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    td { padding: 10px 14px; border-bottom: 1px solid #E0E0E0; color: var(--ink-soft); }
+    tr:last-child td { border-bottom: 2px solid var(--ink); }
+
+    /* ── 풀블리드 인터루드 ── */
+    .interlude {
+      background: var(--bg-soft);
+      padding: 48px 40px;
+      margin: 0 -40px;
+    }
+    .interlude-inner { max-width: var(--content-w); margin: 0 auto; }
+
+    /* ── 푸터 ── */
+    .footer {
+      background: var(--bg-dark);
+      color: rgba(255,255,255,0.5);
+      padding: 32px 40px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 0.72rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer strong { color: rgba(255,255,255,0.85); }
+
+    /* ── 다크 모드 ── */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --ink: #F0F0EC;
+        --ink-soft: #A8A8A0;
+        --ink-muted: #666;
+        --rule: #F0F0EC;
+        --bg: #0E0E0E;
+        --bg-soft: #1A1A1A;
+        --bg-dark: #000000;
+      }
+      .stat-card { background: #0E0E0E; }
+      .pull-quote { background: #1A1A1A; }
+      .hero::before { opacity: 0.08; }
+    }
+
+    @media (max-width: 700px) {
+      html { font-size: 16px; }
+      .hero { padding: 40px 24px; }
+      .masthead { padding: 16px 24px; flex-direction: column; gap: 8px; }
+      .content-wrap { padding: 0 24px; }
+      .two-col-text { column-count: 1; }
+      .stat-row { grid-template-columns: 1fr; }
+      .summary-bar { padding: 16px 24px; }
+      .interlude { margin: 0 -24px; padding: 32px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- 마스트헤드 -->
+<header class="masthead">
+  <div class="masthead-brand">인사이트 리포트</div>
+  <div class="masthead-title">EDITORIAL</div>
+  <div class="masthead-date">2026-05-06<br>Vol. 01</div>
+</header>
+
+<!-- 히어로 -->
+<section class="hero">
+  <div class="hero-eyebrow">특집 분석</div>
+  <h1 class="hero-headline">보고서 제목을<br>크고 임팩트 있게</h1>
+  <p class="hero-lead">
+    리드 문장은 한 줄로 핵심을 전달합니다. 독자가 계속 읽을 이유를 이 문장이 결정합니다.
+    이그제큐티브 브리핑·인사이트 리포트·브랜드 문서에 적합한 에디토리얼 레이아웃입니다.
+  </p>
+  <div class="hero-tags">
+    <span class="tag">가독성</span>
+    <span class="tag">타이포그래피</span>
+    <span class="tag">HTML 보고서</span>
+    <span class="tag">에디토리얼</span>
+  </div>
+</section>
+
+<!-- 요약 바 -->
+<div class="summary-bar" role="note" aria-label="핵심 요약">
+  <div class="summary-item"><div class="summary-text">이 문서의 핵심 포인트 01: 헤드라인이 먼저 읽힌다</div></div>
+  <div class="summary-item"><div class="summary-text">핵심 포인트 02: 리드 문단이 방향을 결정한다</div></div>
+  <div class="summary-item"><div class="summary-text">핵심 포인트 03: 풀 쿼트로 메시지를 강화한다</div></div>
+</div>
+
+<!-- 메인 콘텐츠 -->
+<div class="content-wrap">
+
+  <!-- 섹션 1: 이그제큐티브 서머리 -->
+  <section class="section">
+    <div class="section-label">Executive Summary</div>
+    <h2>전략적 시사점과 핵심 발견</h2>
+
+    <div class="two-col-text">
+      <p class="lead">
+        이 섹션에 가장 중요한 한 문장을 리드 문단으로 배치합니다. 독자가 본문을 읽지 않더라도 이 문장 하나로 핵심을 파악할 수 있어야 합니다.
+      </p>
+
+      <p>
+        본문은 2열 레이아웃으로 잡지처럼 구성됩니다. 각 열의 너비는 약 40ch로, 짧은 줄 길이가 빠른 스캐닝을 돕습니다.
+        이 레이아웃은 정보 밀도가 높은 보고서에서 독자의 눈이 지치지 않도록 설계되었습니다.
+      </p>
+
+      <p>
+        두 번째 문단부터는 일반 본문 스타일이 적용됩니다. <strong>강조할 내용</strong>은 볼드체로, 부연 설명은 일반 텍스트로 구분합니다.
+        CSS <code>column-count: 2</code>로 구현되어 모바일에서 자동으로 1열로 전환됩니다.
+      </p>
+
+      <!-- 풀 쿼트 -->
+      <div class="pull-quote">
+        <blockquote>
+          "좋은 타이포그래피는 독자가 눈치채지 못하는 타이포그래피다. 텍스트가 아닌 아이디어에 집중하게 만드는 것이 목표다."
+        </blockquote>
+        <cite>— 로버트 브링허스트, 『타이포그래피의 원소들』</cite>
+      </div>
+
+      <p>
+        풀 쿼트는 <code>column-span: all</code>을 사용해 두 열 전체를 가로지릅니다.
+        핵심 인용이나 중요한 메시지를 강조할 때 사용합니다.
+        에디토리얼 디자인의 가장 강력한 도구 중 하나입니다.
+      </p>
+
+      <p>
+        세 번째 문단에서는 추가 컨텍스트를 제공합니다. 2열 레이아웃에서 각 문단은 짧게 유지하는 것이
+        가독성에 유리합니다. 긴 문단은 열 경계를 무시하고 흘러가 레이아웃을 해칩니다.
+      </p>
+    </div>
+  </section>
+
+  <!-- 수치 인터루드 -->
+  <div class="interlude">
+    <div class="interlude-inner">
+      <h3>핵심 수치</h3>
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="stat-value">65<em>ch</em></div>
+          <div class="stat-label">최적 줄 길이<br>WCAG 권장 기준</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">1.75<em>x</em></div>
+          <div class="stat-label">최적 line-height<br>장문 독서 기준</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">18<em>px</em></div>
+          <div class="stat-label">권장 본문 크기<br>데스크탑 기준</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 섹션 2: 상세 분석 -->
+  <section class="section">
+    <div class="section-label">Deep Dive</div>
+    <h2>상세 분석 및 데이터</h2>
+
+    <div class="two-col-text">
+      <p class="lead">
+        이 섹션은 표, 목록, 강조 박스 등 다양한 정보 요소를 조합하는 방법을 보여줍니다.
+      </p>
+
+      <!-- 강조 박스 -->
+      <div class="callout">
+        <div class="callout-label">핵심 인사이트</div>
+        <p>
+          이 다크 박스는 특별히 강조하고 싶은 인사이트를 담습니다. 페이지에서 시선을 즉시 끌지만,
+          남용하면 효과가 희석됩니다. 문서 전체에서 1-2회 사용을 권장합니다.
+        </p>
+      </div>
+
+      <h3>주요 발견</h3>
+      <p>
+        목록은 스캐닝에 유리하지만, 3개 이하의 항목은 문장으로 풀어쓰는 편이 더 자연스럽습니다.
+        4개 이상일 때 목록 사용을 권장합니다.
+      </p>
+      <ul>
+        <li>헤드라인은 크고 굵게, 임팩트 우선</li>
+        <li>리드 문단은 가장 중요한 정보를 첫 문장에</li>
+        <li>2열 레이아웃은 정보 밀도가 높을 때 적합</li>
+        <li>풀 쿼트와 콜아웃으로 시각적 리듬 형성</li>
+        <li>에디토리얼 레드로 강조 요소 통일</li>
+      </ul>
+
+      <!-- 테이블 -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>요소</th>
+              <th>에디토리얼</th>
+              <th>미니멀 학술</th>
+              <th>대시보드</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>헤드라인 임팩트</td>
+              <td><strong>최강</strong></td>
+              <td>보통</td>
+              <td>약함</td>
+            </tr>
+            <tr>
+              <td>정보 밀도</td>
+              <td>높음</td>
+              <td>보통</td>
+              <td><strong>최고</strong></td>
+            </tr>
+            <tr>
+              <td>장문 가독성</td>
+              <td>보통</td>
+              <td><strong>최적</strong></td>
+              <td>낮음</td>
+            </tr>
+            <tr>
+              <td>브랜드 인상</td>
+              <td><strong>강함</strong></td>
+              <td>중립</td>
+              <td>테크니컬</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 섹션 3: 결론 -->
+  <section class="section">
+    <div class="section-label">Conclusion</div>
+    <h2>결론 및 권고사항</h2>
+
+    <div class="two-col-text">
+      <p class="lead">
+        결론 섹션은 핵심 발견을 종합하고, 독자가 다음에 해야 할 행동을 명확히 제시합니다.
+      </p>
+
+      <p>
+        에디토리얼 스타일은 독자에게 강한 첫인상을 남기고 싶을 때 가장 적합합니다.
+        이그제큐티브 브리핑, 투자자 업데이트, 브랜드 연간 보고서 같은 문서가 대표적인 사례입니다.
+      </p>
+
+      <p>
+        반면 긴 분석 문서나 기술 명세서에는 Template 01(Minimal Academic)이 더 적합하고,
+        프로젝트 현황·지표 모니터링에는 Template 02(Dashboard)를 선택하세요.
+      </p>
+
+      <div class="pull-quote">
+        <blockquote>
+          "적합한 레이아웃 선택이 내용만큼 중요하다. 형식이 메시지의 신뢰도를 결정한다."
+        </blockquote>
+        <cite>— HTML 보고서 디자인 가이드</cite>
+      </div>
+
+      <p>
+        세 가지 템플릿을 모두 익히면, 어떤 보고서에도 적절한 형식을 빠르게 선택할 수 있게 됩니다.
+        CSS 변수 5개만 수정하면 브랜드 컬러와 폰트를 즉시 바꿀 수 있도록 설계했습니다.
+      </p>
+      <ol>
+        <li>이그제큐티브 브리핑 → Template 03 (Editorial)</li>
+        <li>리서치·학술 보고서 → Template 01 (Minimal Academic)</li>
+        <li>프로젝트 현황·지표 → Template 02 (Dashboard)</li>
+      </ol>
+    </div>
+  </section>
+
+</div><!-- .content-wrap -->
+
+<!-- 풀블리드 푸터 -->
+<footer class="footer">
+  <div><strong>Template 03 — Editorial</strong><br>이그제큐티브 브리핑·브랜드 보고서용</div>
+  <div style="text-align:right">© 2026<br>HTML 보고서 디자인 시리즈</div>
+</footer>
+
+</body>
+</html>
