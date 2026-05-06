@@ -44,6 +44,7 @@ nav:
       - gstack 설명서 및 시작 가이드: html/gstack-guide.html
       - 브레인크루 플러그인 구조와 운영 방식: html/braincrew_plugin_learning_note.html
       - 하네스 엔지니어링 MeetUp 후기: html/Harness Engineering MeetUp_20260422.html
+      - Python Docstring 추천 형식 종합 리서치: html/research_report_python_docstring.html
 
 markdown_extensions:
   - admonition
