@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hydra + MLflow 실험 추적 아키텍처</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --accent: #58a6ff;
+    --accent-green: #3fb950;
+    --accent-orange: #d29922;
+    --accent-purple: #bc8cff;
+    --accent-red: #f85149;
+    --code-bg: #1c2128;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.75rem;
+  }
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+  }
+  h2 {
+    font-size: 1.3rem;
+    color: var(--accent);
+    margin: 2rem 0 0.75rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+  h3 {
+    font-size: 1.1rem;
+    color: var(--accent-purple);
+    margin: 1.5rem 0 0.5rem;
+  }
+  p { margin-bottom: 0.75rem; }
+  code {
+    background: var(--code-bg);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    color: var(--accent-orange);
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 0.75rem 0 1rem;
+    font-size: 0.82rem;
+    line-height: 1.6;
+  }
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.75rem 0 1rem;
+    font-size: 0.88rem;
+  }
+  th, td {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+  }
+  th {
+    background: var(--surface);
+    color: var(--accent);
+    font-weight: 600;
+  }
+  td { background: var(--code-bg); }
+  .diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    font-size: 0.78rem;
+    line-height: 1.6;
+    white-space: pre;
+    overflow-x: auto;
+    margin: 0.75rem 0 1rem;
+    color: var(--text);
+  }
+  .highlight { color: var(--accent-green); }
+  .accent { color: var(--accent); }
+  .warn { color: var(--accent-orange); }
+  .purple { color: var(--accent-purple); }
+  .tag {
+    display: inline-block;
+    background: rgba(88,166,255,0.15);
+    color: var(--accent);
+    padding: 0.15rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+  .tag-green {
+    background: rgba(63,185,80,0.15);
+    color: var(--accent-green);
+  }
+  .tag-purple {
+    background: rgba(188,140,255,0.15);
+    color: var(--accent-purple);
+  }
+  .callout {
+    background: rgba(88,166,255,0.08);
+    border-left: 3px solid var(--accent);
+    padding: 0.75rem 1rem;
+    border-radius: 0 6px 6px 0;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+  }
+  .callout strong { color: var(--accent); }
+  .section-label {
+    display: inline-block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-bottom: 0.3rem;
+  }
+  ul {
+    padding-left: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+  li { margin-bottom: 0.3rem; }
+  .footer {
+    margin-top: 3rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.8rem;
+  }
+</style>
+</head>
+<body>
+
+<h1>Hydra + MLflow 실험 추적 아키텍처</h1>
+<p class="subtitle">에이전트 주도 실험 환경에서의 config 관리, 결과 추적, 코드 변경 추적 통합 설계 &mdash; 2026-05-13</p>
+
+<!-- Section 1: 개요 -->
+<h2>1. 왜 Hydra + MLflow인가</h2>
+
+<p>카파시의 <strong>autoresearch</strong> 패러다임(AI 에이전트가 실험을 자율적으로 설계·실행·평가)에서도, 구조화된 config 관리와 결과 추적은 유효합니다.</p>
+
+<table>
+  <tr>
+    <th>도구</th>
+    <th>역할</th>
+    <th>데이터 구조</th>
+    <th>기계적 가치</th>
+  </tr>
+  <tr>
+    <td><span class="tag">Hydra</span></td>
+    <td>설정(config) 관리 + 실험 실행</td>
+    <td>YAML &rarr; DictConfig &rarr; <code>dict</code></td>
+    <td>중첩 dict를 flat dict로 변환 보장</td>
+  </tr>
+  <tr>
+    <td><span class="tag-green tag">MLflow</span></td>
+    <td>실험 기록 + 결과 추적</td>
+    <td><code>log_params(dict)</code> + <code>log_metrics(dict)</code></td>
+    <td>API 기반 과거 조회 &middot; 재현 가능</td>
+  </tr>
+  <tr>
+    <td><span class="tag-purple tag">Git</span></td>
+    <td>코드 변경 추적</td>
+    <td>commit hash</td>
+    <td>config로 표현 불가능한 아키텍처 변경 추적</td>
+  </tr>
+</table>
+
+<div class="callout">
+  <strong>핵심 연결:</strong> Hydra의 <code>DictConfig</code>를 <code>flatten</code>하면 MLflow의 <code>log_params()</code>에 그대로 전달 가능. dict &rarr; dict 구조적 호환.
+</div>
+
+<!-- Section 2: 데이터 흐름 -->
+<h2>2. 전체 데이터 흐름</h2>
+
+<div class="diagram">
+┌──────────────┐     ┌──────────────┐     ┌─────────────┐
+│  YAML configs │ ──→ │  Hydra Runtime│ ──→ │   train.py   │
+│  (에이전트/인간)│     │  (DictConfig) │     │   (실행)     │
+└──────────────┘     └──────┬───────┘     └──────┬──────┘
+                            │                      │
+                            │  flatten dict        │  metrics
+                            ▼                      ▼
+                     ┌──────────────────────────────┐
+                     │        MLflow Server          │
+                     │  params · metrics · artifacts │
+                     └──────────────┬───────────────┘
+                                    │
+                           ┌────────┴────────┐
+                           │    조회 / 분석    │
+                           │  인간 (UI)       │
+                           │  에이전트 (API)   │
+                           └─────────────────┘
+</div>
+
+<!-- Section 3: Hydra 설정 -->
+<h2>3. Hydra 설정 계층</h2>
+
+<p>설정을 관심사별로 분리하고, 실행 시 조합합니다.</p>
+
+<pre><code>conf/
+├── config.yaml          # 기본 설정
+├── model/
+│   ├── small.yaml       # hidden_dim: 256, num_layers: 4
+│   ├── medium.yaml      # hidden_dim: 512, num_layers: 6
+│   └── large.yaml       # hidden_dim: 1024, num_layers: 8
+├── optimizer/
+│   ├── adam.yaml        # lr: 3e-4, weight_decay: 0.01
+│   └── muon.yaml        # lr: 1e-3, momentum: 0.95
+└── data/
+    ├── small.yaml       # batch_size: 64
+    └── large.yaml       # batch_size: 256</code></pre>
+
+<p>에이전트와 인간 모두 동일한 인터페이스를 사용합니다:</p>
+<pre><code># 인간이 선택
+python train.py model=large optimizer=muon
+
+# 에이전트가 선택 (동일 인터페이스)
+python train.py model=medium optimizer=adam data=large
+
+# 에이전트가 오버라이드
+python train.py model=medium optimizer=adam model.hidden_dim=768</code></pre>
+
+<!-- Section 4: 연결 코드 -->
+<h2>4. Hydra &rarr; MLflow 연결 코드</h2>
+
+<h3>4-1. Flatten 유틸리티</h3>
+<pre><code>def flatten_dict(d, parent_key="", sep="."):
+    """중첩 dict를 flat하게 펴서 MLflow가 받을 수 있게 변환"""
+    items = []
+    for k, v in d.items():
+        new_key = f"{parent_key}{sep}{k}" if parent_key else k
+        if isinstance(v, dict):
+            items.extend(flatten_dict(v, new_key, sep).items())
+        else:
+            items.append((new_key, v))
+    return dict(items)</code></pre>
+
+<h3>4-2. 메인 학습 루프</h3>
+<pre><code>@hydra.main(config_path="conf", config_name="config", version_base=None)
+def main(cfg: DictConfig):
+    # 1. Hydra config → 순수 dict
+    cfg_dict = OmegaConf.to_container(cfg, resolve=True)
+    flat_params = flatten_dict(cfg_dict)
+
+    # 2. MLflow 실험 기록 시작
+    with mlflow.start_run():
+        mlflow.log_params(flat_params)
+        # → model.hidden_dim=512, optimizer.lr=3e-4 등으로 저장
+
+        # 3. Git commit hash 태깅 (코드 추적과의 연결점)
+        mlflow.set_tag("git_commit", get_git_hash())
+
+        # 4. 학습
+        model = build_model(cfg.model)
+        optimizer = build_optimizer(cfg.optimizer)
+        for epoch in range(cfg.train.epochs):
+            loss = train_one_epoch(model, optimizer)
+            val_loss = validate(model)
+            mlflow.log_metrics({"train_loss": loss, "val_loss": val_loss}, step=epoch)
+
+        # 5. 최종 결과
+        mlflow.log_metric("val_bpb", final_val_bpb)
+        mlflow.pytorch.log_model(model, "model")</code></pre>
+
+<h3>4-3. MLflow에 저장되는 데이터 예시</h3>
+<table>
+  <tr><th>타입</th><th>키</th><th>값</th></tr>
+  <tr><td>param</td><td><code>model.hidden_dim</code></td><td>512</td></tr>
+  <tr><td>param</td><td><code>model.num_layers</code></td><td>6</td></tr>
+  <tr><td>param</td><td><code>optimizer.lr</code></td><td>0.0003</td></tr>
+  <tr><td>param</td><td><code>data.batch_size</code></td><td>256</td></tr>
+  <tr><td>tag</td><td><code>git_commit</code></td><td><code>a3f7c2d...</code></td></tr>
+  <tr><td>metric</td><td><code>val_bpb</code></td><td>0.847</td></tr>
+  <tr><td>artifact</td><td><code>model/</code></td><td>(학습된 가중치)</td></tr>
+</table>
+
+<!-- Section 5: 에이전트 루프 -->
+<h2>5. 에이전트 주도 실험 루프</h2>
+
+<p>에이전트는 <strong>MLflow API만으로</strong> 과거를 조회하고 다음을 설계합니다.</p>
+
+<pre><code># [1] 과거 실험 조회
+results = mlflow.search_runs(
+    experiment_ids=[0],
+    order_by=["metrics.val_bpb ASC"]
+)
+best = results.iloc[0]
+# → "optimizer.lr=0.0003, model.hidden_dim=512 일 때 val_bpb=0.847"
+
+# [2] 다음 실험 설계 — 에이전트가 판단
+# "hidden_dim을 512→768로 늘려보자"
+# → model/medium_large.yaml 새로 생성
+# 또는 → CLI 오버라이드: model.hidden_dim=768
+
+# [3] 실험 실행
+subprocess.run("python train.py model=medium optimizer=adam model.hidden_dim=768")
+
+# [4] 결과 자동 기록 (Hydra → MLflow)
+
+# [5] [1]로 돌아감 — 루프 반복</code></pre>
+
+<!-- Section 6: 두 영역의 공존 -->
+<h2>6. Config 영역 vs 코드 영역</h2>
+
+<div class="callout">
+  <strong>핵심 구분:</strong> Hydra로 관리 가능한 영역(하이퍼파라미터)과 코드 수정이 필요한 영역(아키텍처 구조)이 공존합니다.
+</div>
+
+<table>
+  <tr>
+    <th>영역</th>
+    <th>예시</th>
+    <th>관리 도구</th>
+    <th>추적 방식</th>
+  </tr>
+  <tr>
+    <td><span class="tag">Config 관리</span></td>
+    <td>lr, batch_size, hidden_dim, num_layers</td>
+    <td>Hydra YAML</td>
+    <td>MLflow <code>log_params()</code></td>
+  </tr>
+  <tr>
+    <td><span class="tag-purple tag">코드 수정</span></td>
+    <td>새로운 attention 메커니즘, 학습 루프 변경</td>
+    <td>Git</td>
+    <td>MLflow <code>set_tag("git_commit")</code></td>
+  </tr>
+</table>
+
+<p><strong>config로 가능한 것:</strong></p>
+<pre><code># model/transformer.yaml
+hidden_dim: 512
+num_heads: 8
+num_layers: 6
+ffn_dim: 2048
+dropout: 0.1</code></pre>
+
+<p><strong>config로 안 되는 것 (코드 수정 필요):</strong></p>
+<pre><code># "flash attention 대신 linear attention을 써보자"
+# 이건 config 토글이 아니라 코드 자체의 변경
+class LinearAttention(nn.Module):
+    def forward(self, x):
+        ...  # 완전히 다른 연산</code></pre>
+
+<!-- Section 7: 통합 아키텍처 -->
+<h2>7. 통합 아키텍처 요약</h2>
+
+<div class="diagram">
+에이전트 / 인간
+    │
+    ├── [설정 변경] ──→ Hydra YAML 수정/생성
+    │                       ↓
+    │                 Hydra가 config 조합 → dict
+    │                       ↓
+    ├── [코드 변경] ──→ Git commit
+    │                       ↓
+    │                 train.py 실행
+    │                       ↓
+    │                 MLflow에 기록:
+    │                   params    ← Hydra config (dict)
+    │                   metrics   ← 학습 결과 (dict)
+    │                   tags      ← git commit hash
+    │                   artifacts ← 모델 가중치
+    │                       ↓
+    └── [결과 조회] ──→ MLflow API (기계) 또는 UI (인간)
+                            ↓
+                       다음 실험 설계 → 루프 반복
+</div>
+
+<!-- Section 8: Karpathy와의 관계 -->
+<h2>8. Karpathy autoresearch와의 관계</h2>
+
+<p>카파시의 autoresearch(2026.03)는 <strong>Git 기반</strong>으로, 에이전트가 <code>train.py</code>를 직접 수정하는 방식입니다. 별도의 추적 시스템 없이 파일과 Git만 사용합니다.</p>
+
+<table>
+  <tr>
+    <th>구분</th>
+    <th>autoresearch (Karpathy)</th>
+    <th>Hydra + MLflow 제안</th>
+  </tr>
+  <tr>
+    <td>실험 주체</td>
+    <td>LLM 에이전트 (Claude, Codex)</td>
+    <td>동일 + 구조적 추적 레이어 추가</td>
+  </tr>
+  <tr>
+    <td>변경 방식</td>
+    <td>코드 직접 수정</td>
+    <td>Config는 Hydra, 아키텍처는 코드</td>
+  </tr>
+  <tr>
+    <td>추적</td>
+    <td>Git 히스토리 + 파일</td>
+    <td>Git + MLflow (params/metrics/artifacts)</td>
+  </tr>
+  <tr>
+    <td>과거 조회</td>
+    <td>파일 읽기</td>
+    <td>MLflow API (구조화된 쿼리)</td>
+  </tr>
+  <tr>
+    <td>스케일</td>
+    <td>단일 에이전트, 단일 GPU</td>
+    <td>다수 에이전트 협업 확장 용이</td>
+  </tr>
+</table>
+
+<div class="callout">
+  <strong>결론:</strong> Hydra + MLflow는 autoresearch의 <em>대체</em>가 아니라 <em>보강</em>입니다. 에이전트의 탐색 루프에 구조적 추적 레이어를 추가하여, 인간 검토뿐 아니라 에이전트의 과거 결과 조회도 기계적으로 개선합니다.
+</div>
+
+<div class="footer">
+  <p>생성일: 2026-05-13 &middot; Hydra + MLflow 실험 추적 아키텍처 설계 문서</p>
+</div>
+
+</body>
+</html>

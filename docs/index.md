@@ -17,6 +17,15 @@ hide:
 ## Latest Entries
 
 <div class="post-list">
+  <a class="post-item" href="html/hydra-mlflow-architecture.html">
+    <div class="post-meta">
+      <span class="post-tag">Architecture</span>
+      <span class="post-date">2026.05.13</span>
+    </div>
+    <h2>Hydra + MLflow 실험 추적 아키텍처</h2>
+    <p>Hydra 설정 관리와 MLflow 실험 추적을 함께 운영하는 구조와 흐름을 정리한 아키텍처 문서입니다.</p>
+  </a>
+
   <a class="post-item" href="html/html_report_design_guide.html">
     <div class="post-meta">
       <span class="post-tag">Design Guide</span>
@@ -90,6 +99,15 @@ hide:
 ### 가이드와 설계 자산
 
 <div class="post-list">
+  <a class="post-item" href="html/hydra-mlflow-architecture.html">
+    <div class="post-meta">
+      <span class="post-tag">Architecture</span>
+      <span class="post-date">2026.05.13</span>
+    </div>
+    <h2>Hydra + MLflow 실험 추적 아키텍처</h2>
+    <p>실험 설정, 실행 기록, 아티팩트 추적을 함께 묶는 구조를 설명한 설계 문서입니다.</p>
+  </a>
+
   <a class="post-item" href="html/html_report_design_guide.html">
     <div class="post-meta">
       <span class="post-tag">Design Guide</span>
