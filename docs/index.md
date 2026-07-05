@@ -17,6 +17,15 @@ hide:
 ## Latest Entries
 
 <div class="post-list">
+  <a class="post-item" href="html/%EB%82%B4%EA%B0%80%20%ED%95%98%EB%8A%94%20%EB%B0%94%EC%9D%B4%EB%B8%8C%EC%BD%94%EB%94%A9.html">
+    <div class="post-meta">
+      <span class="post-tag">Note</span>
+      <span class="post-date">2026.07.05</span>
+    </div>
+    <h2>내가 하는 바이브코딩</h2>
+    <p>AI 코딩 도구를 개인 작업 운영체제처럼 활용하는 방식과 흐름을 정리한 바이브코딩 노트입니다.</p>
+  </a>
+
   <a class="post-item" href="html/hydra-mlflow-architecture.html">
     <div class="post-meta">
       <span class="post-tag">Architecture</span>
@@ -157,6 +166,15 @@ hide:
 ### 노트와 기록
 
 <div class="post-list">
+  <a class="post-item" href="html/%EB%82%B4%EA%B0%80%20%ED%95%98%EB%8A%94%20%EB%B0%94%EC%9D%B4%EB%B8%8C%EC%BD%94%EB%94%A9.html">
+    <div class="post-meta">
+      <span class="post-tag">Note</span>
+      <span class="post-date">2026.07.05</span>
+    </div>
+    <h2>내가 하는 바이브코딩</h2>
+    <p>AI와 함께 코딩 작업을 설계하고 실행하는 개인 워크플로우를 정리한 HTML 문서입니다.</p>
+  </a>
+
   <a class="post-item" href="html/braincrew_plugin_learning_note.html">
     <div class="post-meta">
       <span class="post-tag">Note</span>

@@ -52,6 +52,7 @@ nav:
           - Dashboard Report: html/example/template-02-dashboard.html
           - Editorial: html/example/template-03-editorial.html
       - 노트와 기록:
+          - 내가 하는 바이브코딩: html/내가 하는 바이브코딩.html
           - 브레인크루 플러그인 구조와 운영 방식: html/braincrew_plugin_learning_note.html
           - 하네스 엔지니어링 MeetUp 후기: html/Harness Engineering MeetUp_20260422.html
       - 원문 파일:
