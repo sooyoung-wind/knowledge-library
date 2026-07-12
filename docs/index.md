@@ -17,6 +17,15 @@ hide:
 ## Latest Entries
 
 <div class="post-list">
+  <a class="post-item" href="files/%EC%8B%9C%EA%B3%84%EC%97%B4%20%EB%8D%B0%EC%9D%B4%ED%84%B0%20%EC%84%A4%EB%AA%85%EC%9E%90%EB%A3%8C%20-%20%EA%B8%B0%EB%B3%B8.pdf">
+    <div class="post-meta">
+      <span class="post-tag">PDF</span>
+      <span class="post-date">2026.07.12</span>
+    </div>
+    <h2>시계열 데이터 설명자료 - 기본</h2>
+    <p>시계열 데이터의 기본 개념과 설명 자료를 담은 원문 PDF 파일입니다. 브라우저에서 바로 열어볼 수 있습니다.</p>
+  </a>
+
   <a class="post-item" href="html/%EB%82%B4%EA%B0%80%20%ED%95%98%EB%8A%94%20%EB%B0%94%EC%9D%B4%EB%B8%8C%EC%BD%94%EB%94%A9.html">
     <div class="post-meta">
       <span class="post-tag">Note</span>
@@ -166,6 +175,15 @@ hide:
 ### 노트와 기록
 
 <div class="post-list">
+  <a class="post-item" href="files/%EC%8B%9C%EA%B3%84%EC%97%B4%20%EB%8D%B0%EC%9D%B4%ED%84%B0%20%EC%84%A4%EB%AA%85%EC%9E%90%EB%A3%8C%20-%20%EA%B8%B0%EB%B3%B8.pdf">
+    <div class="post-meta">
+      <span class="post-tag">PDF</span>
+      <span class="post-date">Source</span>
+    </div>
+    <h2>시계열 데이터 설명자료 - 기본 PDF</h2>
+    <p>시계열 데이터 기초 설명을 담은 원문 PDF 파일입니다. 브라우저에서 직접 열어볼 수 있습니다.</p>
+  </a>
+
   <a class="post-item" href="html/%EB%82%B4%EA%B0%80%20%ED%95%98%EB%8A%94%20%EB%B0%94%EC%9D%B4%EB%B8%8C%EC%BD%94%EB%94%A9.html">
     <div class="post-meta">
       <span class="post-tag">Note</span>
