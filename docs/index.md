@@ -17,6 +17,15 @@ hide:
 ## Latest Entries
 
 <div class="post-list">
+  <a class="post-item" href="html/grafana_minimal_observability_plan.html">
+    <div class="post-meta">
+      <span class="post-tag">Observability</span>
+      <span class="post-date">2026.08.30</span>
+    </div>
+    <h2>Grafana 도입 및 실습 계획</h2>
+    <p>Grafana 기초 학습, 로컬 PoC, 대시보드와 알림 체계 구축을 단계별로 정리한 관측성 도입 계획입니다.</p>
+  </a>
+
   <a class="post-item" href="files/%EC%8B%9C%EA%B3%84%EC%97%B4%20%EB%8D%B0%EC%9D%B4%ED%84%B0%20%EC%84%A4%EB%AA%85%EC%9E%90%EB%A3%8C%20-%20%EA%B8%B0%EB%B3%B8.pdf">
     <div class="post-meta">
       <span class="post-tag">PDF</span>
@@ -117,6 +126,15 @@ hide:
 ### 가이드와 설계 자산
 
 <div class="post-list">
+  <a class="post-item" href="html/grafana_minimal_observability_plan.html">
+    <div class="post-meta">
+      <span class="post-tag">Observability</span>
+      <span class="post-date">2026.08.30</span>
+    </div>
+    <h2>Grafana 도입 및 실습 계획</h2>
+    <p>관측, 알림, 원인 추적 흐름을 만들기 위한 Grafana 학습 및 최소 PoC 설계 문서입니다.</p>
+  </a>
+
   <a class="post-item" href="html/hydra-mlflow-architecture.html">
     <div class="post-meta">
       <span class="post-tag">Architecture</span>

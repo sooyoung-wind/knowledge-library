@@ -44,6 +44,7 @@ nav:
           - Python Docstring 추천 형식 종합 리서치: html/research_report_python_docstring.html
           - HPC-MI 연구 제안서 초안: html/HPC-MI 연구 제안서 초안.html
       - 가이드와 설계:
+          - Grafana 도입 및 실습 계획: html/grafana_minimal_observability_plan.html
           - Hydra + MLflow 실험 추적 아키텍처: html/hydra-mlflow-architecture.html
           - HTML 보고서 디자인 가이드: html/html_report_design_guide.html
           - gstack 설명서 및 시작 가이드: html/gstack-guide.html
