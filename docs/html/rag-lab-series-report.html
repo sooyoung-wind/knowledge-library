@@ -31,6 +31,8 @@
   .bar { height:8px; background:var(--panel); border-radius:4px; overflow:hidden; margin:6px 0 2px; }
   .bar i { display:block; height:100%; background:var(--acc); }
   .bar i.r { background:var(--neg); } .bar i.y { background:var(--warn); } .bar i.g { background:var(--pos); }
+  .companion-link { display:inline-block; margin-top:14px; color:var(--acc); font-size:13px; text-decoration:none; border:1px solid var(--acc); border-radius:999px; padding:7px 12px; }
+  .companion-link:hover { background:rgba(94,234,212,.08); }
   footer { margin-top:48px; padding-top:16px; border-top:1px solid var(--line); color:var(--sub); font-size:12px; }
 </style>
 </head>
@@ -39,6 +41,7 @@
 <header>
 <h1>RAG 랩 실험 시리즈 종합 보고서</h1>
 <div class="meta">17~32차 · 2026-08-31 ~ 09-04 · HotpotQA 유사 1,000질의 × 9,927문서 · 리트리버 → 에이전트 → 라우팅 → EnvHarness 루프</div>
+<a class="companion-link" href="rag-lab-series-report-eli5.html">ELI5 해설판 열기: 용어와 아키텍처를 쉽게 설명합니다</a>
 </header>
 
 <h2>1. 요약 — 무엇을 달성했나</h2>

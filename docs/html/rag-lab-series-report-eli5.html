@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>RAG 랩 보고서 ELI5 — 용어 해설 + 아키텍처 진화 (17~32차)</title>
+<style>
+  :root { --bg:#0f1117; --panel:#171a23; --card:#1d212c; --line:#2a2f3d; --tx:#d8dce6; --sub:#8b93a7; --acc:#5eead4; --warn:#fbbf24; --neg:#f87171; --pos:#4ade80; --blue:#a5d6ff; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--tx); font-family:'Pretendard','Segoe UI',sans-serif; line-height:1.7; padding:40px 16px; }
+  .wrap { max-width:960px; margin:0 auto; }
+  header { border-bottom:1px solid var(--line); padding-bottom:24px; margin-bottom:32px; }
+  h1 { font-size:25px; margin-bottom:8px; }
+  .meta { color:var(--sub); font-size:13px; }
+  h2 { font-size:19px; color:var(--acc); margin:44px 0 14px; border-left:3px solid var(--acc); padding-left:12px; }
+  h3 { font-size:15.5px; margin:24px 0 8px; color:var(--tx); }
+  p, li { font-size:14px; }
+  .sub { color:var(--sub); font-size:13px; }
+  table { width:100%; border-collapse:collapse; margin:14px 0; font-size:13px; background:var(--card); border-radius:8px; overflow:hidden; }
+  th { background:var(--panel); color:var(--sub); text-align:left; padding:9px 12px; font-weight:600; }
+  td { padding:8px 12px; border-top:1px solid var(--line); vertical-align:top; }
+  tr.hl td { background:rgba(94,234,212,.07); color:var(--acc); font-weight:600; }
+  tr.neg td { color:var(--neg); }
+  code { background:var(--panel); padding:1px 6px; border-radius:4px; font-size:12.5px; color:var(--blue); }
+  ul, ol { padding-left:22px; margin:8px 0; }
+  .callout { background:var(--card); border:1px solid var(--line); border-left:3px solid var(--warn); border-radius:8px; padding:14px 16px; margin:16px 0; font-size:14px; }
+  .callout b { color:var(--warn); }
+  .term { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 18px; margin:12px 0; }
+  .term h3 { margin:0 0 6px; color:var(--acc); font-size:15px; }
+  .term .ana { color:var(--warn); font-size:13.5px; margin:6px 0; }
+  .term .exp { font-size:13.5px; color:var(--tx); }
+  pre { background:#0b0d12; border:1px solid var(--line); border-radius:10px; padding:14px 16px; font-family:'D2Coding','Consolas',monospace; font-size:12.5px; line-height:1.5; overflow-x:auto; color:#c8d3e8; margin:14px 0; }
+  pre .g { color:var(--pos); } pre .r { color:var(--neg); } pre .y { color:var(--warn); } pre .c { color:var(--acc); } pre .d { color:var(--sub); }
+  .arch { border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:22px 0; background:var(--card); }
+  .arch h3 { font-size:16px; color:var(--acc); margin-bottom:4px; }
+  .arch .chg { font-size:12.5px; color:var(--sub); margin-bottom:10px; }
+  .proscons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; }
+  .proscons div { background:var(--panel); border-radius:8px; padding:10px 14px; font-size:13px; }
+  .proscons .p { border-left:3px solid var(--pos); }
+  .proscons .c2 { border-left:3px solid var(--neg); }
+  .proscons b.p2 { color:var(--pos); } .proscons b.c3 { color:var(--neg); }
+  footer { margin-top:48px; padding-top:16px; border-top:1px solid var(--line); color:var(--sub); font-size:12px; }
+  @media (max-width:640px){ .proscons { grid-template-columns:1fr; } }
+</style>
+</head>
+<body><div class="wrap">
+
+<header>
+<h1>RAG 랩 보고서, 5살 아이도 이해하려면 (ELI5)</h1>
+<div class="meta">원본: rag-lab-series-report.html (17~32차 종합) · 이 문서는 용어 해설 + 전체/차수별 아키텍처 진화 보충판 · 원본과 독립된 별도 파일 (덮어쓰기 없음)</div>
+</header>
+
+<h2>0. 큰 그림 먼저 — 이 시리즈는 무슨 이야기인가</h2>
+<p><b>도서관 비유</b>: 우리에겔 9,927권짜리 도서관(코퍼스)이 있다. 손님(질의)이 와서
+"이거 알려줘"라고 물으면 ① 사서가 책 5권을 골라주고(리트리버) ② 그 책을 읽고 답하는
+독서꾼(리더 LLM)이 답한다. 이 시리즈는 ①을 12번 고치고(0.726 → 0.9420), ②가 못 읽는
+경우를 구하는 궁리꾼(에이전트)을 얹고, 둘 사이에 "이 손님은 궁리꾼한테 보낼까?"를 정하는
+안내데스크(라우팅)까지 만든 이야기다. 마지막엔 시험문제 은행(평가셋) 자체를 진화시켜서
+우리 도서관을 다시 공격해 봤다(EnvHarness) — 아직 우리가 진다.</p>
+
+<h2>1. 용어 사전 — 보고서에 나오는 말 전부 (ELI5)</h2>
+
+<div class="term">
+<h3>질의 / 골드 / 코퍼스</h3>
+<div class="ana">비유: 질의 = 손님의 질문, 골드 문서 = 그 질문의 정답이 적힌 책 (시험 채점표에 적혀 있음), 코퍼스 = 도서관 전체 9,927권.</div>
+<div class="exp">HotpotQA 유사 1,000질의를 썼고, 각 질문마다 정답 근거 문서(골드)가 2개씩 정해져 있다. "골드를 찾았다" = 정답 책을 선반에서 꺼냈다는 뜻.</div>
+</div>
+
+<div class="term">
+<h3>recall@5 (리콜앳파이브)</h3>
+<div class="ana">비유: "정답 책 2권을 <b>둘 다</b> 사서가 내민 5권 안에 넣었는가?" — 1권만 있으면 그 질문은 실패 처리.</div>
+<div class="exp">검색기가 상위 5개(k=5)로 뽑은 문서 목록에 골드가 모두 들어간 질의의 비율. 0.9420 = 100질의 중 약 94개에서 정답 책 전부를 5권 안에 확보. base(BM25 단독) 0.726 → 최적점 0.9420.</div>
+</div>
+
+<div class="term">
+<h3>리트리버 vs 리더</h3>
+<div class="ana">비유: 리트리버 = 책을 고르는 사서, 리더 = 고른 책을 읽고 답하는 독서꾼.</div>
+<div class="exp">보고서 4장의 핵심: 이제 사서는 94% 잘하는데 <b>독서꾼이 책을 갖고도 답을 못 뽑는다</b>(골드를 다 줘도 단발 EM 0.633). 병목이 선반에서 책상으로 옮겼다.</div>
+</div>
+
+<div class="term">
+<h3>BM25 (Sparse 검색)</h3>
+<div class="ana">비유: 단어가 정확히 일치하는 책을 찾는 꼼꼼한 인덱스 카드 방식. "generator"가 적힌 책만 찾는다.</div>
+<div class="exp">질의와 문서의 <b>글자 일치</b> 기반 스코어. 빠르고(20ms) 코드·고유명에 강하지만, 다른 표현("발전기")을 못 알아본다.</div>
+</div>
+
+<div class="term">
+<h3>dense (임베딩 검색) / 사전 색인</h3>
+<div class="ana">비유: 책마다 "이 책의 냄새(의미)"를 점으로 찍어두고, 질문의 냄새와 가까운 책을 고르는 방식. "발전기"로 물어도 "generator" 책을 찾을 수 있다.</div>
+<div class="exp">qwen3-embedding으로 문서를 4096차원 벡터로 바꿔 둠. <b>사전 색인</b> = 도서관 책 전체의 냄새를 미리 다 찍어둠(6.6분 1회) ↔ 20차의 온라인 방식은 그때그때 일부만 계산이라 top100 밖 골드에 못 닿았다.</div>
+</div>
+
+<div class="term">
+<h3>리랭커 (qwen3-reranker)</h3>
+<div class="ana">비유: 사서가 30권을 대충 꺼내면, <b>검토원</b>이 "질문이랑 나란히 읽고" 순서를 다시 매기는 사람. 후보 30권 중 최종 5권을 정한다.</div>
+<div class="exp">질의-문서 쌍을 함께 읽는(cross-encoder) 모델. "리랭커는 후보 30권에 정답이 없으면 무력" — 못 찾은 책은 순서를 잘 매겨도 소용없다(17차 함정 교훈).</div>
+</div>
+
+<div class="term">
+<h3>RRF (Reciprocal Rank Fusion)</h3>
+<div class="ana">비유: 글자 매치 사서(BM25)와 냄새 매치 사서(dense)가 <b>각자 순위표</b>를 내면, "두 표를 합쳐 종합 순위"를 만드는 규칙. 점수 크기는 무시하고 <b>몇 등인지만</b> 합친다.</div>
+<div class="exp">각 검색기 순위의 역수(1/순위)를 더해 융합. 22차 최적점의 핵심 부품.</div>
+</div>
+
+<div class="term">
+<h3>MRR</h3>
+<div class="ana">비유: 정답 책을 <b>몇 등</b>으로 꺼냈는가. 1등이면 1점, 3등이면 1/3점의 평균.</div>
+<div class="exp">정답이 위쪽에 올수록 1에 가까워짐. 19차 0.966 = 정답이 거의 항상 1등 근처.</div>
+</div>
+
+<div class="term">
+<h3>EM (Exact Match) / "미스 질의 EM"</h3>
+<div class="ana">비유: 시험 채점인데 <b>글자가 100% 똑같아야</b>만 정답. "1969-1974"라 써도 정답이 "1969 until 1974"면 0점.</div>
+<div class="exp">예측 답과 정답의 문자열 완전 일치 여부(HotpotQA 공식 정규화 후). <b>"미스 질의 EM 0.37→0.60"</b> = 리트리버가 정답 책을 놓친 질의들(미스 질의)만 모아서 채점한 EM이 0.37이었는데 에이전트가 0.60으로 끌어올렸다는 뜻. 전체 1,000질의의 EM이 아님에 주의.</div>
+</div>
+
+<div class="term">
+<h3>F1</h3>
+<div class="ana">비유: 조금 너그러운 채점 — 단어가 얼마나 겹치는지(빠뜨림·넘침)로 부분 점수를 줌.</div>
+<div class="exp">EM보다 관대해서 보조 지표로 함께 봄. EM이 틀려도 F1이 높으면 "거의 맞췄는데 서술이 붙었다"는 뜻.</div>
+</div>
+
+<div class="term">
+<h3>deepagents / 에이전트 / 구원율 44%</h3>
+<div class="ana">비유: 한 번 검색하고 마는 게 아니라, 결과를 읽고 <b>"어? 이 이름이 단서네, 다시 찾아봐야겠다"</b> 하며 스스로 여러 번 검색하는 궁리꾼 조교.</div>
+<div class="exp">deepagents = 플래닝(투두) + 도구 호출 + 서브에이전트를 갖춘 에이전트 프레임워크. <b>구원율 44%</b> = 리트리버가 놓친 미스 질의 59개 중 26개(44%)에서 에이전트의 재검색 체이닝이 골드를 회수하고 정답까지 도출. 골드 회수율 0.02→0.63. 비용은 26초/질의(단발은 ~1초).</div>
+</div>
+
+<div class="term">
+<h3>마진(top1−top2) / 라우팅</h3>
+<div class="ana">비유: 안내데스크가 "이 손님은 사서한테만? 궁리꾼한테?"를 정하는 것. 판단 재료 = 리랭커가 매긴 <b>1등과 2등의 점수 차</b>(마진).</div>
+<div class="exp">마진 ≥ 0.3이면 에이전트행. <b>반전 발견</b>: 마진이 <b>클수록</b> 미스 확률이 높다(AUC 0.725) — 리랭커가 틀린 문서에도 0.99점을 주는(miscalibration) 탓에 "확신해서 틀림"이 벌어진다. 상식(마진 작으면 불확실)의 반대.</div>
+</div>
+
+<div class="term">
+<h3>R4 / 브리지(다리) 엔티티 / 2-hop</h3>
+<div class="ana">비유: "A의 감독의 아내 이름은?" — 질문에는 없는 <b>중간 다리 인물(감독)</b>을 먼저 찾아야 풀리는 2단계 질문.</div>
+<div class="exp">HotpotQA의 대표 유형. 다리 엔티티가 질의 텍스트에 안 나타나므로 어떤 질의 재구성으로도 회수 불가(28차 확정) — 검색 결과를 <b>읽고</b> 다음 검색어를 만드는 에이전트 전용 영역.</div>
+</div>
+
+<div class="term">
+<h3>EnvHarness / 표적 셋 / 골드누수</h3>
+<div class="ana">비유: 시험문제 은행도 공부 대상 — 시스템이 약한 지형만 골라서 <b>표적 시험지</b>를 새로 만들어 계속 압박하자는 관점(Google, arXiv:2608.19880). 골드누수 = 채점표가 사고로 답을 흘려봐서 성적이 부풀린 버그.</div>
+<div class="exp">26차가 표적 셋 8개를 만들어 약점 재현(recall 0.562)에 성공. 25차의 0.9590은 저장 데이터 rank 필드가 골드만 담고 있어 "골드 보너스"가 된 골드누수 — <b>무효</b> 정정(정직한 값 0.923).</div>
+</div>
+
+<h2>2. 전체 아키텍처 — 최종 3층 시스템 (31차 완성형)</h2>
+<pre>
+<span class="d">[질의 1,000개]</span>
+     │
+     ▼
+┌──────────────────────────── L1: 리트리버 (22차 확정) ─────────────────────────────┐
+│                                                                                │
+│   질의 ──┬──▶ BM25 top30 ──────────┐                                          │
+│         │                          │▶ <span class="c">RRF 융합 (순위 합산) → 후보 30</span>          │
+│         └──▶ dense 전체색인 top30 ──┘                                          │
+│                  (qwen3-embedding 4096d, 9,927문서 사전 색인)                   │
+│                                        │                                        │
+│                                        ▼                                        │
+│                          <span class="c">qwen3-reranker로 후보 30 재정렬 → top5</span>          │
+│                                        │                                        │
+└────────────────────────────────────────┼────────────────────────────────────────┘
+                                         ▼
+                            <span class="y">마진 = top1점수 − top2점수</span>
+                                         │
+                     ┌───── 마진 &lt; 0.3 ──┴── 마진 ≥ 0.3 ─────┐
+                     ▼ (전체 질의의 69%)                    ▼ (31%)
+              <span class="g">L2a: 단발 답변</span>                      <span class="c">L2b: 에이전트 (deepagents)</span>
+              top5 → GLM 단번에 답변 (~1초)      재검색 체이닝: 검색→읽고→다른 검색어→재검색
+                                              (평균 2.8회 검색, 26초/질의)
+                     │                                    │
+                     └──────────────┬─────────────────────┘
+                                    ▼
+                          <span class="g">[답변] → EM/F1 채점</span>
+                                    ▼
+                    <span class="y">L3(개념): 평가셋도 진화 — 26차 표적 셋이</span>
+                    <span class="y">계속 새 시험지를 만들어 시스템을 압박 (32차: 아직 평가가 이김)</span>
+</pre>
+<p class="sub">읽는 법: 초록=싼 길(단발), 청록=강한 부품, 노랑=판정/개념층. 라우팅은 "비싼 궁리꾼을 꼭 필요한 31%에만" 투입하는 절전 장치다.</p>
+
+<h2>3. 차수별 아키텍처 진화 — 무엇이 어떻게 바뀌었고, 좋았나 나빴나</h2>
+
+<div class="arch">
+<h3>진화 0 — 출발점: BM25 단독 + 그래프 시도 (17차, 2026-08-31)</h3>
+<div class="chg">변경: 순수 BM25@5에서 출발. "질의마다 임시 지식그래프(KG)를 만들어 확장하면 멀티홉이 잡히지 않을까?" 실험 → <b>부정</b>.</div>
+<pre>
+<span class="d">BEFORE</span>                        <span class="d">AFTER (시도됐으나 폐기)</span>
+질의 ─▶ BM25@5 ─▶ top5      질의 ─▶ BM25@5 시드 ─▶ 임시 KG 생성
+<span class="g">recall@5 0.726</span>                        │ 3홉 확장 → RRF 융합 → top5
+                              <span class="r">recall@5 0.620 — 오히려 하락</span>
+</pre>
+<ul>
+<li><b>개선점</b>: 없음(부정 결과) — 대신 "미스의 94%가 랭킹 문제"라는 정확한 진단 확보(17.5차에 1,000질의로 정정: 사실 발견 실패가 25.6%로 더 큼).</li>
+</ul>
+<div class="proscons">
+<div class="p"><b class="p2">장점(교훈)</b><br>· 시드 문서만으로 그래프를 만들면 시드 밖 문서는 원리적으로 못 찾음을 증명<br>· "수치가 이상하면 측정 코드부터 의심" 래칫 확립</div>
+<div class="c2"><b class="c3">단점</b><br>· 임시 KG 35ms 오버헤드만 얹고 recall 하락<br>· 값싼 추출기(패턴 매칭)로는 관계 신호 부족 — LLM 추출은 비용</div>
+</div>
+</div>
+
+<div class="arch">
+<h3>진화 1 — 후보 창 확대 + 리랭커 도입 (18~19차, 09-01~03)</h3>
+<div class="chg">변경: ① BM25 후보를 5권 → 30권으로 ② 그 30권을 <b>리랭커가 재정렬</b>해 최종 5권 선발. "사서 1명 → 사서 + 검토원" 2단 구조 탄생.</div>
+<pre>
+<span class="d">진화 0</span>                              <span class="d">진화 1 (18b→19차)</span>
+질의 ─▶ BM25@5 ─▶ top5              질의 ─▶ BM25<span class="c">@30</span> ─▶ <span class="c">리랭커 재정렬</span> ─▶ top5
+<span class="g">0.726</span>                                  <span class="g">bge 리랭크 0.864 → qwen3-rr 0.913 (469ms)</span>
+</pre>
+<ul>
+<li><b>개선점</b>: 0.726 → 0.864(bge) → <b>0.913</b>(qwen3-reranker). 리랭커 교체만으로 +4.9p, 레이턴시는 2555→469ms(1/5).</li>
+<li><b>비하인드</b>: 18e에서 vLLM /rerank 엔드포인트가 템플릿을 오적용해 무관련 문서에 0.8점(성능 51%) — 공식 채팅 템플릿을 수동 조립해 /pooling으로 우회하는 게 정답이었음.</li>
+</ul>
+<div class="proscons">
+<div class="p"><b class="p2">장점</b><br>· 창(후보 30)을 넓히니 정답이 10~30위에 숨어 있던 것들이 대거 회수(+13.8p)<br>· cross-encoder 재정렬은 정확도 대비 매우 저렴</div>
+<div class="c2"><b class="c3">단점</b><br>· 후보 30에 정답이 없으면 무력(발견 한계가 새 병목으로)<br>· 리랭커 서빙의 버그 지뢰(vLLM 템플릿)</div>
+</div>
+</div>
+
+<div class="arch">
+<h3>진화 2 — 두 사서 합치기: RRF 융합, 온라인 (20차)</h3>
+<div class="chg">변경: BM25 top30에 dense top30을 더해 RRF 융합. 처음으로 <b>두 검색기의 순위표를 합산</b>.</div>
+<pre>
+질의 ──┬─▶ BM25@30 ──────┐
+       │                 ├─▶ <span class="c">RRF@30</span> ─▶ 리랭커 ─▶ top5
+       └─▶ dense@30 <span class="d">(BM25@100 안에서 그때그때 계산)</span> ──┘
+<span class="g">recall@5 0.913 → 0.930 (+1.7p), 레이턴시 469→1524ms (3.2배)</span>
+</pre>
+<ul>
+<li><b>개선점</b>: +1.7p. dense가 어휘 갭(다른 표현)의 골드를 회수. 단 19차 리랭커가 이미 웬만큼 구제해 수확은 작았음.</li>
+</ul>
+<div class="proscons">
+<div class="p"><b class="p2">장점</b><br>· 어휘가 달라서 BM25가 못 찾던 골드에 닿음<br>· 정확도 우선 오프라인 용도로는 채용 가치</div>
+<div class="c2"><b class="c3">단점</b><br>· 온라인 근사(BM25@100 안 재계산)라 깊은 곳(top100 밖)엔 못 닿음<br>· 3.2배 레이턴시 — 온라인 서비스엔 부담</div>
+</div>
+</div>
+
+<div class="arch">
+<h3>진화 3 — ★ 시리즈 최적점: dense 전체 사전 색인 (22차)</h3>
+<div class="chg">변경: dense를 "그때그때 계산"이 아니라 <b>도서관 전체 9,927문서를 미리 벡터 색인</b>(6.6분 1회성) — 후보가 원리적으로 전 코퍼스를 커버.</div>
+<pre>
+질의 ──┬─▶ BM25@30 ────────────────┐
+       │                           ├─▶ <span class="c">RRF@30</span> ─▶ 리랭커 ─▶ top5
+       └─▶ dense@30 <span class="c">(전체 사전 색인)</span> ─┘
+<span class="g">recall@5 0.930 → 0.9420 ★ 시리즈 최고 (top100 밖 골드 73개 중 35개 회수)</span>
+</pre>
+<ul>
+<li><b>개선점</b>: 21차 해부가 지목한 "top100 밖 73골드(진짜 발견 한계)"를 dense 사전 색인이 직접 공략 — 35개 회수(+2.75p). 리트리버 축의 종착점.</li>
+</ul>
+<div class="proscons">
+<div class="p"><b class="p2">장점</b><br>· 후보 상한 = 전체 코퍼스 (발견의 원리적 천장 제거)<br>· 색인 비용 1회성, 문서당 임베딩 재계산 불필요<br>· 16b(영어 폐쇄 풀에서 dense 열세)와 반대 결과 — 전체 색인이면 dense가 BM25도 이김</div>
+<div class="c2"><b class="c3">단점</b><br>· 문서가 바뀌면 색인 재구축 필요(invalidate-rebuild)<br>· RRF 융합이 deep 골드를 다시 밀어내는 "융합 희석" 13골드 발생<br>· 여전히 리랭커 오담이 새 병목(23차: 미스의 54%)</div>
+</div>
+</div>
+
+<div class="arch">
+<h3>진화 3의 그림자 — 먹히지 않았던 4가지 시도 (24~28차)</h3>
+<div class="chg">변경 시도: ① 후보 k 확대(24차) ② 순위 융합 선발(25차) ③ RAPTOR 요약 트리(27차) ④ 결정적 2단계 검색(28차) — <b>전부 채택 안 됨</b>.</div>
+<table>
+<tr><th>시도</th><th>구조 변경 내용</th><th>결과</th><th>왜 실패했나 (장단점 요약)</th></tr>
+<tr class="neg"><td>24차 k-스윕</td><td>RRF 후보 30→50→100</td><td>0.9420→0.9445 (+0.25p)</td><td>후보에 넣어도 리랭커가 top5에 <b>선발</b>을 못 함. 레버는 후보 폭이 아니라 선발 방식임이 확정. k=100은 레이턴시 +90% 대비 +0.1p.</td></tr>
+<tr class="neg"><td>25차 융합 선발</td><td>top5 선발을 rr점수+BM25순위+dense순위 가중합으로</td><td>0.9590로 보였으나 <b>무효</b>(골드누수 버그)</td><td>rank 필드가 골드만 담고 있어 가중치가 "골드 보너스"로 변질 — 재현성 검증(0.9420 일치)마저 뚫고 들어온 누수. 정직 재구현 시 0.923으로 오히려 손해.</td></tr>
+<tr class="neg"><td>27차 RAPTOR</td><td>문서 300클러스터 요약 노드를 위에 얹고 drill-down 주입</td><td>0.9420→0.8990 (−2.4p)</td><td>구체적 2-hop 질의엔 "주제 수준 요약"이 매칭 지점이 없음. 요약 노드에서 끌어온 90개 후보가 오히려 희석. 요약층의 영역은 전역/주제형 질의지 정확 검색이 아님.</td></tr>
+<tr class="neg"><td>28차 2단계 검색</td><td>1단계 top3 제목을 질의에 붙여 재검색, 후보 주입 (LLM 0회)</td><td>0.9420→0.9395 (−0.25p)</td><td>1단계 top3가 이미 골드/노이즈 혼합이라 제목 확장이 후보를 희석(회수 2 / 회귀 7). R4(브리지 간접지시)는 <b>질의 재구성 계열로는 원리적으로 불가</b> 확정 — 다리 엔티티를 읽어야만 안다.</td></tr>
+</table>
+<div class="callout"><b>이 4연패가 준 확실한 정보</b>: 리트리버 축은 22차 구조로 <b>수렴</b>. 남은 미스(리랭커 오담 63 + R4 심층 16)는 "검색어를 더 잘 고치는" 방향으로는 안 풀리고, <b>검색 결과를 읽고 사고하는 층</b>(에이전트)에서만 풀린다 — 다음 진화의 근거.</div>
+</div>
+
+<div class="arch">
+<h3>진화 4 — 사고하는 층 추가: deepagents 에이전트 (29차)</h3>
+<div class="chg">변경: 22차 리트리버를 그대로 검색 도구(ctx_search)로 삼아, <b>재검색 체이닝이 가능한 에이전트 층</b>을 위에 얹음. 미스 질의 60개로 검증.</div>
+<pre>
+<span class="d">BASE</span>: top5 ─▶ GLM 답변 (한 방)         <span class="d">AGENT</span>: 질의 ─▶ <span class="c">검색 → 읽음 → 다음 검색어 발굴 → 재검색…</span> ─▶ 답변
+<span class="g">EM 0.37, 골드회수 0.02</span>                  <span class="g">EM 0.60, 골드회수 0.63 (평균 2.8회 검색, 26초)</span>
+</pre>
+<ul>
+<li><b>개선점(구원율 44%)</b>: 미스 59질의 중 26개 구원. 리트리버가 원리적으로 못 닿는 R4(브리지 간접지시) 16질의 중 5개도 구원 — 28차 가설 부분 지지. 잔여 11개는 다리 엔티티가 검색 결과에조차 안 나오는 "진짜 벽".</li>
+</ul>
+<div class="proscons">
+<div class="p"><b class="p2">장점</b><br>· 리트리버 축의 종결 선언을 받침 구조적 증거: 읽는 층이 못 찾던 골드를 회수<br>· 10차(BM25@3, 구원 60%)와 정합 — 리트리버가 강해져도 구원율 44% 유지</div>
+<div class="c2"><b class="c3">단점</b><br>· 26초/질의 — 단발(~1초)의 26배. 전량 투입은 비용 과다<br>· 구현 함정 3연타: bind(timeout) 크래시 / 생성 후 속성 무효 / 워커스레드 SQLite("검색 N회·seen 0" 신호)</div>
+</div>
+</div>
+
+<div class="arch">
+<h3>진화 5 — 절전 장치: 라우팅 층 (30~31차) → 3층 완성</h3>
+<div class="chg">변경: 리랭커 점수의 <b>마진(top1−top2)</b>으로 "이 질의는 단발? 에이전트?"를 자동 판정. 마진 ≥ 0.3 → 에이전트행(전체의 31%).</div>
+<pre>
+                        ┌─ 마진 &lt; 0.3 (69%) ─▶ <span class="g">단발 top5 → GLM (~1초)</span>
+질의 ─▶ L1(22차) ─▶ top5 ┤
+                        └─ 마진 ≥ 0.3 (31%) ─▶ <span class="c">deepagents (26초)</span>
+<span class="g">단발 전량 EM 0.475 → 라우팅 0.542 (+6.7p) / 전량 에이전트 ~0.578</span>
+</pre>
+<ul>
+<li><b>개선점</b>: 단발 대비 +6.7p를 에이전트 비용 31%만 써서 달성. 비용-성능 곡선의 효율점.</li>
+<li><b>반전 발견 2개</b>: ① 마진이 <b>클수록</b> 미스(AUC 0.725) — 리랭커 miscalibration 때문. ② correct+에이전트 실측 EM 0.50(시뮬 가정 0.85의 절반) — 이미 풀린 질의를 재검색하며 오히려 흔들림. <b>라우팅 신호는 "미스 예측"이지 "에이전트 이득 예측"이 아니다.</b></li>
+</ul>
+<div class="proscons">
+<div class="p"><b class="p2">장점</b><br>· 1/3 비용으로 전량 에이전트 대비 성능의 대부분 확보<br>· 미스 60개 중 29개를 에이전트행으로 커버</div>
+<div class="c2"><b class="c3">단점</b><br>· 잔여 3.6p(라우팅 0.542 vs 전량 0.578)가 추가 69% 비용의 가치 — 정책 선택<br>· 신호가 HotpotQA 분포에서 학습된 것 — 도메인 바뀌면 무효(32차 실증)<br>· correct 질의가 에이전트행에 섞이면 손해(EM 0.50)</div>
+</div>
+</div>
+
+<div class="arch">
+<h3>진화 6 — 시험지도 진화: EnvHarness 루프 폐쇄 시도 (26차·32차, 마무리)</h3>
+<div class="chg">변경: 시스템 구조 변경이 아니라 <b>평가셋을 시스템의 약점 지형으로 자동 생성</b>(26차: 진단 → 표적 질의 8개)하고, 최종 3층 시스템과 재대결(32차).</div>
+<pre>
+<span class="d">루프</span>: 시스템 미스 진단 ─▶ 표적 시험지 생성 ─▶ 약점 재현 확인(recall 0.562) ─▶ 처방/재대결
+                                        │
+        <span class="r">32차 결과: L1 단독 0.688 &gt; L2 라우팅+에이전트 0.625 — 진화한 평가가 아직 이긴다</span>
+</pre>
+<ul>
+<li><b>개선점</b>: 진단→표적→재현 전반부는 검증 성공. 시리즈의 남은 미스가 "브리지 간접지시 + 어휘 중의성"임을 구조화.</li>
+<li><b>32차 시사점</b>: 표적 지형에서는 마진 신호가 "확신해서 틀림"이 아니라 "그냥 확신"으로 작동 — 이미 풀린 질의가 에이전트행이 되어 골드를 잃음(0.50으로 하락). 라우팅 신호의 도메인 의존성 실증.</li>
+</ul>
+<div class="proscons">
+<div class="p"><b class="p2">장점</b><br>· "진단 → 표적 → 재대결" 사이클 자체가 재사용 가능한 자산<br>· 정적 벤치마크 통과 후 정체(EnvHarness 전제)가 우리 스택에서도 성립함을 증명</div>
+<div class="c2"><b class="c3">단점</b><br>· 후반부(처방) 불안정: 분해 주입 이득(+6.2p)이 LLM 실행 변동에 묻힘 — 3회+ 반복 평가 필수<br>· 표적 셋 8개는 작음 — 진단 표본 CI 함정</div>
+</div>
+</div>
+
+<h2>4. 진화 한 줄 요약 — 숫자로 보는 아키텍처 사다리</h2>
+<table>
+<tr><th>단계</th><th>추가된 부품</th><th>recall@5</th><th>한 줄 평</th></tr>
+<tr><td>base</td><td>BM25@5 단독</td><td>0.726</td><td>빠르지만 어휘 일치만 가능</td></tr>
+<tr><td>18차</td><td>+ bge 리랭커 (BM25@30)</td><td>0.864</td><td>후보 창 확대의 힘</td></tr>
+<tr><td>19차</td><td>리랭커 → qwen3-reranker</td><td>0.913</td><td>검토원 교체만으로 +4.9p, 469ms 효율점</td></tr>
+<tr><td>20차</td><td>+ 온라인 dense RRF</td><td>0.930</td><td>융합 이득 +1.7p, 레이턴시 3.2배</td></tr>
+<tr class="hl"><td>22차</td><td>dense <b>전체 사전 색인</b> + RRF</td><td>0.9420</td><td>★ 리트리버 종착점 — top100 밖 73골드 중 35 회수</td></tr>
+<tr class="neg"><td>24/25/27/28차</td><td>k확대/융합선발/RAPTOR/2단계</td><td>≤0.9445 (무효·하락)</td><td>4연패 — 리트리버 축 수렴 증명</td></tr>
+<tr><td>29차</td><td>+ 에이전트 층 (deepagents)</td><td>— (미스 질의 EM 0.37→0.60)</td><td>구원율 44%, 읽는 층이 병목 해소</td></tr>
+<tr><td>31차</td><td>+ 라우팅 (마진 ≥ 0.3)</td><td>— (EM 0.475→0.542)</td><td>3층 완성 — +6.7p @ 31% 비용</td></tr>
+<tr><td>32차</td><td>+ 표적 평가셋 재대결</td><td>0.625 &lt; L1 0.688</td><td>평가가 아직 이김 — 루프는 상설 자산</td></tr>
+</table>
+
+<div class="callout">
+<b>전체 아키텍처 스토리 3문장 요약</b><br>
+① 사서를 혼자 두지 마라: 글자 사서(BM25) + 냄새 사서(dense 전체색인)의 순위를 합치고(RRF) 검토원(리랭커)이 최종 5권 — 0.726→0.9420.<br>
+② 거기서 더 개선하려고 후보를 늘리고·점수를 섞고·요약을 얹고·질의를 고친 4가지는 전부 실패 — 남은 미스는 <b>읽고 사고하는 층</b>의 몫이었다(에이전트 구원 44%).<br>
+③ 비싼 궁리꾼은 마진이 큰("확신해서 틀리는") 31%에만 보내는 절전 장치(라우팅)로 3층 완성 — 그런데 진화한 시험지(표적 셋)엔 아직 진다. 시험 은행을 계속 굴리는 것 자체가 다음 사이클의 자산.
+</div>
+
+<h2>5. 원본 보고서 ↔ 이 문서 대응표</h2>
+<ul>
+<li>원본 §2 "성능 사다리" → 이 문서 §3 진화 0~3 (각 단계 장단점 추가)</li>
+<li>원본 §3 "3층 시스템 실증" → §2 전체 다이어그램 + §3 진화 4~5 (구원율·마진·EM 정의는 §1)</li>
+<li>원본 §4 "잔여 갭" → §1 "리트리버 vs 리더" + §3 진화 3의 그림자(R4·리랭커 오담)</li>
+<li>원본 §6 "EnvHarness 루프 폐쇄" → §3 진화 6</li>
+<li>원본 §7 "함정 카탈로그" 7종 → 해당 차수 아키텍처 항목의 "단점" 칸에 분산 배치 (25차 골드누수→진화 3의 그림자, 29차 3연타→진화 4, correct+에이전트 손해→진화 5, 신호 도메인 의존→진화 6 등)</li>
+</ul>
+
+<footer>
+데이터 근거: ~/hermes_study/rag_lab/README.md (17~32차 실험 로그 전문) · 원본 보고서: rag-lab-series-report.html (변경 없음)<br>
+2026-09-05 · ELI5 보충판 — 용어 해설 + 아키텍처 진화
+</footer>
+</div></body></html>
