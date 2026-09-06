@@ -40,6 +40,7 @@ nav:
   - Home: index.md
   - 문서:
       - 리서치와 제안:
+          - RAG 랩 실험 시리즈 종합 보고서: html/rag-lab-series-report.html
           - 풍력 MCP 장기보정 AI 모델 종합 리서치 보고서: html/report_wind_mcp_ai_models.html
           - Python Docstring 추천 형식 종합 리서치: html/research_report_python_docstring.html
           - HPC-MI 연구 제안서 초안: html/HPC-MI 연구 제안서 초안.html

@@ -17,6 +17,15 @@ hide:
 ## Latest Entries
 
 <div class="post-list">
+  <a class="post-item" href="html/rag-lab-series-report.html">
+    <div class="post-meta">
+      <span class="post-tag">Research</span>
+      <span class="post-date">2026.09.04</span>
+    </div>
+    <h2>RAG 랩 실험 시리즈 종합 보고서</h2>
+    <p>17~32차 RAG 실험을 바탕으로 리트리버, 라우팅, 에이전트와 EnvHarness 평가 루프의 성능과 개선점을 종합한 보고서입니다.</p>
+  </a>
+
   <a class="post-item" href="html/grafana_minimal_observability_plan.html">
     <div class="post-meta">
       <span class="post-tag">Observability</span>
@@ -95,6 +104,15 @@ hide:
 ### 리서치와 제안
 
 <div class="post-list">
+  <a class="post-item" href="html/rag-lab-series-report.html">
+    <div class="post-meta">
+      <span class="post-tag">Research</span>
+      <span class="post-date">2026.09.04</span>
+    </div>
+    <h2>RAG 랩 실험 시리즈 종합 보고서</h2>
+    <p>리트리버 개선부터 에이전트 라우팅, 진화하는 평가셋까지 검증한 RAG 실험 시리즈의 종합 기록입니다.</p>
+  </a>
+
   <a class="post-item" href="html/report_wind_mcp_ai_models.html">
     <div class="post-meta">
       <span class="post-tag">Research</span>

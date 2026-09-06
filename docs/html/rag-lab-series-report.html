@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>RAG 랩 실험 시리즈 종합 보고서 (17~32차)</title>
+<style>
+  :root { --bg:#0f1117; --panel:#171a23; --card:#1d212c; --line:#2a2f3d; --tx:#d8dce6; --sub:#8b93a7; --acc:#5eead4; --warn:#fbbf24; --neg:#f87171; --pos:#4ade80; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--tx); font-family:'Pretendard','Segoe UI',sans-serif; line-height:1.65; padding:40px 16px; }
+  .wrap { max-width:960px; margin:0 auto; }
+  header { border-bottom:1px solid var(--line); padding-bottom:24px; margin-bottom:32px; }
+  h1 { font-size:26px; margin-bottom:8px; }
+  .meta { color:var(--sub); font-size:13px; }
+  h2 { font-size:19px; color:var(--acc); margin:40px 0 14px; border-left:3px solid var(--acc); padding-left:12px; }
+  h3 { font-size:15px; margin:20px 0 8px; color:var(--tx); }
+  p, li { font-size:14px; color:var(--tx); }
+  .sub { color:var(--sub); font-size:13px; }
+  table { width:100%; border-collapse:collapse; margin:14px 0; font-size:13px; background:var(--card); border-radius:8px; overflow:hidden; }
+  th { background:var(--panel); color:var(--sub); text-align:left; padding:9px 12px; font-weight:600; }
+  td { padding:8px 12px; border-top:1px solid var(--line); }
+  tr.hl td { background:rgba(94,234,212,.07); color:var(--acc); font-weight:600; }
+  tr.neg td { color:var(--neg); }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin:16px 0; }
+  .kpi { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; }
+  .kpi .v { font-size:24px; font-weight:700; color:var(--acc); }
+  .kpi .l { font-size:12px; color:var(--sub); margin-top:4px; }
+  .callout { background:var(--card); border:1px solid var(--line); border-left:3px solid var(--warn); border-radius:8px; padding:14px 16px; margin:16px 0; font-size:14px; }
+  .callout b { color:var(--warn); }
+  code { background:var(--panel); padding:1px 6px; border-radius:4px; font-size:12.5px; color:#a5d6ff; }
+  ul, ol { padding-left:22px; margin:8px 0; }
+  .bar { height:8px; background:var(--panel); border-radius:4px; overflow:hidden; margin:6px 0 2px; }
+  .bar i { display:block; height:100%; background:var(--acc); }
+  .bar i.r { background:var(--neg); } .bar i.y { background:var(--warn); } .bar i.g { background:var(--pos); }
+  footer { margin-top:48px; padding-top:16px; border-top:1px solid var(--line); color:var(--sub); font-size:12px; }
+</style>
+</head>
+<body><div class="wrap">
+
+<header>
+<h1>RAG 랩 실험 시리즈 종합 보고서</h1>
+<div class="meta">17~32차 · 2026-08-31 ~ 09-04 · HotpotQA 유사 1,000질의 × 9,927문서 · 리트리버 → 에이전트 → 라우팅 → EnvHarness 루프</div>
+</header>
+
+<h2>1. 요약 — 무엇을 달성했나</h2>
+<div class="grid">
+<div class="kpi"><div class="v">0.9420</div><div class="l">리트리버 recall@5 (base 0.726, +21.6p)</div></div>
+<div class="kpi"><div class="v">44%</div><div class="l">deepagents 구원율 (미스 질의 EM 0.37→0.60)</div></div>
+<div class="kpi"><div class="v">+6.7p</div><div class="l">라우팅 실측 이득 @ 에이전트 31% 비용</div></div>
+<div class="kpi"><div class="v">7종</div><div class="l">문서화된 평가·구현 함정 카탈로그</div></div>
+</div>
+<p>시리즈의 서사: 21차 미스 해부에서 시작해 "미스 해부 → 처방 → 검증" 사이클을 12차례 순환하며
+<b>3층 시스템(리트리버 + 라우팅 + 에이전트)</b>을 실증했고, EnvHarness 관점("평가셋도 진화 대상")으로 열어
+EnvHarness 재대결로 닫았다. 최종 결론: <b>진화한 평가가 진화한 시스템을 여전히 이긴다 — 루프는 상설 자산</b>.</p>
+
+<h2>2. 성능 사다리 (리트리버 축)</h2>
+<table>
+<tr><th>차수</th><th>시스템</th><th>recall@5</th><th>비고</th></tr>
+<tr><td>base</td><td>BM25@5</td><td>0.726</td><td>출발점</td></tr>
+<tr><td>18차</td><td>BM25@30 → bge 리랭크</td><td>0.864</td><td>후보 폭의 힘</td></tr>
+<tr><td>19차</td><td>BM25@30 → qwen3-reranker</td><td>0.913</td><td>MRR 0.966, 469ms — 효율점</td></tr>
+<tr><td>20차</td><td>+ 온라인 dense RRF</td><td>0.930</td><td>+1.7p, 레이턴시 3.2배</td></tr>
+<tr class="hl"><td>22차</td><td>RRF(BM25 ∪ dense 전체색인) → 리랭커</td><td>0.9420</td><td>★ 시리즈 최적점 (top100 밖 73골드 중 35개 회수)</td></tr>
+<tr class="neg"><td>25차</td><td>융합 선발 0.9590</td><td>(무효)</td><td>골드누수 버그 — 정정 후 이득 없음 (0.923)</td></tr>
+<tr class="neg"><td>27차</td><td>+ RAPTOR 요약 트리</td><td>0.899</td><td>−2.4p · 구체적 2-hop엔 요약노드 무의미</td></tr>
+<tr class="neg"><td>28차</td><td>+ 결정적 2단계 검색</td><td>0.9395</td><td>−0.25p · 후보 희석</td></tr>
+</table>
+<p class="sub">24차 k-스윕: k=100 상한 대비 +0.25p에 불과 — "후보 확대" 축은 22차에 이미 수렴, 레버는 "선발 방식"과 "다른 층"임이 데이터로 입증.</p>
+
+<h2>3. 3층 시스템 실증 (29~31차)</h2>
+<table>
+<tr><th>전략 (미스 질의 60 + 정답 질의 60)</th><th>EM</th><th>에이전트 비율</th><th>비용</th></tr>
+<tr><td>단발 전량 (top5 → GLM)</td><td>0.475</td><td>0%</td><td>~1s/질의</td></tr>
+<tr class="hl"><td>라우팅 (마진 ≥ 0.3 → 에이전트)</td><td>0.542</td><td>31%</td><td>혼합</td></tr>
+<tr><td>전량 에이전트 (deepagents)</td><td>~0.578</td><td>100%</td><td>26s/질의</td></tr>
+</table>
+<ul>
+<li><b>에이전트 구원율 44%</b>: 미스 59질의 중 26구원, 골드 회수 0.02→0.63 (R4 심층 16질의 중 5구원)</li>
+<li><b>라우팅 신호의 반전 발견</b>: 마진(top1−top2)이 <i>클수록</i> 미스 — "확신해서 틀림" (AUC 0.725). 리랭커 miscalibration(틀려도 0.99)과 정합</li>
+<li><b>correct+에이전트는 손해</b>: 실측 EM 0.50 (시뮬 가정 0.85의 절반) — 라우팅 신호는 "미스 예측"이지 "에이전트 이득 예측"이 아니다</li>
+</ul>
+
+<h2>4. 얼마나 못 찾는가 — 잔여 갭의 정체 (개선점 분석의 근거)</h2>
+<div class="callout">
+<b>최대 발견: 이제 병목은 리트리버가 아니라 리더다.</b><br>
+골드를 <b>모두 회수한 질의 88.4%</b>에서 단발 EM은 <b>0.633</b>에 불과 — 문서가 있어도 답을 추출하지 못한다.
+잔여 개선 포텐셜의 절대 다수가 검색 밖에 있다.
+</div>
+<h3>잔여 100%의 분해 (1,000질의 기준)</h3>
+<table>
+<tr><th>구간</th><th>비율</th><th colspan="2">내역</th></tr>
+<tr><td>리더 실패 (골드 O, 답변 X)</td><td><b>~32.5%</b></td><td colspan="2">884질의 × 36.7% — 컨텍스트 길이·2-hop 추론 실패·스니펫 600자 절단 의심</td></tr>
+<tr><td>리트리버 미스 (골드 X)</td><td>11.6%</td><td colspan="2">116질의 (부분회수 116, 완전미스 0)</td></tr>
+<tr><td>　└ 에이전트 구원</td><td>−5.1%p</td><td colspan="2">구원율 44% × 11.6%</td></tr>
+<tr><td>　└ 구원 불가</td><td>~2.1%</td><td colspan="2">≈21질의 — 다리 엔티티가 검색 결과에조차 없는 진짜 벽 (R4 포함)</td></tr>
+<tr><td>잔여 리트리버 미스 성격 (23차 해부)</td><td>—</td><td colspan="2">리랭커 오담 63골드 / 융합희석 13 / k회수권 24 / 심층(R4) 16</td></tr>
+</table>
+<div class="bar"><i class="r" style="width:32.5%"></i></div><p class="sub">리더 실패 ~32.5%</p>
+<div class="bar"><i class="y" style="width:5.1%"></i></div><p class="sub">리트리버 미스 중 에이전트로 구원 가능</p>
+<div class="bar"><i class="g" style="width:60%"></i></div><p class="sub">현재 정답 (종단 EM 상한 ~0.65~0.67, 단발 실측 ~0.615)</p>
+
+<h2>5. 개선점 — 다음 사이클의 처방 후보 (효과 크기 순)</h2>
+<ol>
+<li><b>리더 강화 (예상 +15~20p, 최우선)</b> — 32.5%가 여기 묶여 있다. ① 스니펫 600자 절단 해제 (top5 전문 로딩), ② 2-hop 추론용 인스트럭션/CoT, ③ 리더 모델 교체 (glm-4.6 → 더 강한 추론 모델) 순으로 검증. 가장 싸고 가장 크다.
+</li>
+<li><b>구원 불가 21질의의 최후 벽</b> — 다리 엔티티가 코퍼스 어휘 공간에 없음. 처방은 검색이 아니라 <b>문서 확장</b>(하이퍼링크 인접 문서 색인) 또는 사전지식 주입 — 코퍼스 자체를 진화 대상으로 보는 관점 전환 (EnvHarness의 Setup 컴포넌트와 동형).
+</li>
+<li><b>리랭커 오담 63골드</b> — 마진<0.1이 31건. 캘리브레이션(온도/길이 정규화) 또는 앙상블 리랭커. 단 26차가 점수 miscalibration을 실측했으므로 순위 기반 앙상블이 안전.
+</li>
+<li><b>라우팅 신호 도메인 일반화</b> — 마진 신호는 HotpotQA 분포에서 학습된 것. 표적 셋(32차)에선 무효. 신호 후보를 늘려 캘리브레이션셋 분포를 바꿔가며 재검증 필요.
+</li>
+<li><b>평가 루프 상설화</b> — 26차 표적 생성기의 LLM 변동 문제(처방 이득 < 실행 노이즈) 해결: 3회 반복 채택 or 처방-변동 분리 설계.
+</li>
+</ol>
+
+<h2>6. EnvHarness 루프 폐쇄 (32차, 마무리)</h2>
+<table>
+<tr><th>시스템</th><th>표적 셋 골드 회수율</th></tr>
+<tr><td>L1 리트리버 단독</td><td>0.688</td></tr>
+<tr class="neg"><td>L2 라우팅+에이전트</td><td>0.625 — 하락 (라우팅 신호가 표적 지형에선 무효)</td></tr>
+</table>
+<p><b>결론: 루프는 아직 열려 있다.</b> 진화한 평가(26차 표적 셋)가 진화한 시스템(3층)을 여전히 이긴다.
+"정적 시스템은 정적 벤치마크 통과 후 정체된다"는 EnvHarness 전제가 우리 스택에서도 성립.
+<b>'진단 → 표적 → 재대결' 사이클 자체가 상설 자산</b>이며, 다음 사이클의 표적은 §5-1의 리더 지형이다.</p>
+
+<h2>7. 함정 카탈로그 (7종 — 재사용 가능한 교훈)</h2>
+<ol>
+<li><b>골드누수</b>: 저장 데이터의 rank 필드가 골드만 담으면 가중치가 골드 보너스로 변질 — 재현성 검증도 뚫는다 (25차). 필드 커버리지 확인 전 스코어링 금지.</li>
+<li><b>bind() 미호환</b>: <code>llm.bind(timeout=)</code>는 deepagents 크래시 — ChatOpenAI <b>생성자</b>의 timeout=이 정답.</li>
+<li><b>생성 후 속성 무효</b>: httpx 클라이언트는 생성 시점 고정.</li>
+<li><b>워커스레드 SQLite</b>: deepagents 도구는 자체 연결 필수. "검색 N회 · seen 0" 패턴 = 스레드 버그 신호.</li>
+<li><b>correct+에이전트 손해</b>: 이미 풀린 질의는 재검색으로 흔들림 — 라우팅은 미스 예측이지 이득 예측이 아님.</li>
+<li><b>진단 표본 CI</b>: 실패 30샘플 진단은 불안정 — 표적 질의 생성은 안정성 검증 필요.</li>
+<li><b>신호 도메인 의존</b>: 분포가 바뀌면 라우팅 신호의 방향도 바뀐다 (32차).</li>
+</ol>
+
+<h2>8. 인프라 스택 (재현)</h2>
+<ul>
+<li>리랭커 qwen3-reranker <code>10.0.1.111:8103</code> (/pooling, 공식 템플릿 수동 조립) · 임베딩 qwen3-embedding <code>:8102</code></li>
+<li>dense 전체색인 캐시 <code>kg22_doc_index.npz</code> (9,927 × 4096d, 6.6분 1회) · 문서 DB <code>kg17_docs.db</code></li>
+<li>에이전트: deepagents + glm-4.6 (timeout=120, max_retries=2) · 평가: EM/F1 (HotpotQA 공식 정규화)</li>
+</ul>
+
+<footer>
+실험 로그 원본: <code>~/hermes_study/rag_lab/README.md</code> (17~32차) · 연구일지: Notion "17~28차 + 29~32차" 페이지 ·
+데이터: kg23_per_question.json / kg29_results.json / kg30_signal_rows.json / kg31_results.json / kg32_results.json<br>
+2026-09-04 · rag_lab 시리즈 1차 마감
+</footer>
+</div></body></html>
