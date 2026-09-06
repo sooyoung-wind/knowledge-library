@@ -1,0 +1,4 @@
+interface:
+  display_name: "MkDocs 문서 게시"
+  short_description: "새 문서를 MkDocs에 반영하고 GitHub에 게시합니다"
+  default_prompt: "Use $mkdocs-publish-document to add this document to the MkDocs archive and commit and push the changes."
